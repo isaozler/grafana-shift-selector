@@ -457,7 +457,7 @@ ORDER by ??, ??
         format: 'table',
       };
 
-      const response = (await db
+      const response = ((await db
         .fetch({
           url: '/api/ds/query',
           method: 'post',
@@ -467,7 +467,7 @@ ORDER by ??, ??
             to: '0',
           },
         })
-        .toPromise()) as { data: { results: { shifts_values: { dataframes: DataFrame[] } } } } as any;
+        .toPromise()) as { data: { results: { shifts_values: { dataframes: DataFrame[] } } } }) as any;
 
       const { data: queries, state } = toDataQueryResponse(response) as DataQueryResponse;
 
@@ -522,7 +522,7 @@ ORDER by ??, ??
       });
       throw error;
     }
-  }, [siteUUID, sqlConfig, resetAlert, setAlertHandler, templateSrv]);
+  }, [siteUUID, sqlConfig, resetAlert, setAlertHandler, setShiftValues, templateSrv]);
 
   useEffect(() => {
     const dateRange = {
@@ -531,9 +531,7 @@ ORDER by ??, ??
     };
 
     setInitDateRage(() => dateRange);
-  }, [dateTimeFormat, timeRange.from, timeRange.to]);
 
-  useEffect(() => {
     if (customTimeRange) {
       const { from, to, uuid } = customTimeRange || {};
       const fromCheck = typeof from === 'string' ? timeRange.from.unix() * 1000 : from;
@@ -550,7 +548,7 @@ ORDER by ??, ??
         replace: true,
       });
     }
-  }, [locationSrv, customTimeRange, timeRange]);
+  }, [dateTimeFormat, locationSrv, customTimeRange, timeRange.to, timeRange.from, setInitDateRage]);
 
   useEffect(() => {
     if (width < 400) {
@@ -558,7 +556,7 @@ ORDER by ??, ??
     } else {
       setViewType(() => EViewType.row);
     }
-  }, [width, height]);
+  }, [width, height, setViewType]);
 
   useEffect(() => {
     const shiftOptions: any = templateSrv
@@ -601,7 +599,8 @@ ORDER by ??, ??
           return setAlertHandler({
             id: 1,
             type: 'brandWarning',
-            text: 'Warning! You are missing shifts because some shiftnames are not unique. Please make sure all shifts have unique names!',
+            text:
+              'Warning! You are missing shifts because some shiftnames are not unique. Please make sure all shifts have unique names!',
           });
         } else {
           return setAlertHandler({
@@ -614,12 +613,13 @@ ORDER by ??, ??
 
       setAlerts(resetAlert(1));
     }
-  }, [closedAlerts, shiftOptions, shiftValues]);
+  }, [closedAlerts, shiftOptions, shiftValues, resetAlert, setAlertHandler]);
 
   useEffect(() => {
     if (sqlConfig) {
       getValues();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [siteUUID, sqlConfig]);
 
   useEffect(() => {
@@ -644,6 +644,17 @@ ORDER by ??, ??
 
         setSqlConfig(() => data);
       }
+
+      setShiftOptions(() => templateSrv.getVariables().find(({ name }) => name === vars.queryShiftsOptions) || null);
+
+      if (!initDateRage) {
+        setInitDateRage(() => ({
+          from: dateRange.from.format(dateTimeFormat),
+          to: dateRange.to.format(dateTimeFormat),
+        }));
+      }
+
+      getRelativeDates();
     } catch (error) {
       setAlertHandler({
         id: 3,
@@ -651,20 +662,19 @@ ORDER by ??, ??
         text: `Error! Missing ${vars.varQueryMapper} variable for the mapping!`,
       });
     }
-  }, [templateSrv, setSiteUUID, setSqlConfig, setAlertHandler, sqlConfig, siteUUID]);
-
-  useEffect(() => {
-    setShiftOptions(() => templateSrv.getVariables().find(({ name }) => name === vars.queryShiftsOptions) || null);
-
-    if (!initDateRage) {
-      setInitDateRage(() => ({
-        from: dateRange.from.format(dateTimeFormat),
-        to: dateRange.to.format(dateTimeFormat),
-      }));
-    }
-
-    getRelativeDates();
-  }, []);
+  }, [
+    setSiteUUID,
+    setSqlConfig,
+    setAlertHandler,
+    setShiftOptions,
+    setInitDateRage,
+    initDateRage,
+    templateSrv,
+    sqlConfig,
+    siteUUID,
+    dateTimeFormat,
+    dateRange,
+  ]);
 
   return (
     <ShiftSelectorWrapper>
