@@ -10,13 +10,20 @@
     "sign": "grafana-toolkit plugin:sign",
     "start": "yarn watch"
   },
-  "author": "Isa Ozler",
-  "license": "MIT",
+  "homepage": "https://github.com/isaozler/grafana-shift-selector",
+  "bugs": "https://github.com/isaozler/grafana-shift-selector/issues",
+  "repository": "github:isaozler/grafana-shift-selector",
+  "author": {
+    "name": "Isa Ozler",
+    "email": "contactme@isaozler.com",
+    "url": "https://isaozler.com"
+  },
+  "license": "Apache-2.0",
   "devDependencies": {
-    "@grafana/data": "^8.3.4",
-    "@grafana/runtime": "^8.3.4",
-    "@grafana/toolkit": "^8.3.4",
-    "@grafana/ui": "^8.3.4",
+    "@grafana/data": "8.3.4",
+    "@grafana/runtime": "8.3.4",
+    "@grafana/toolkit": "8.3.4",
+    "@grafana/ui": "8.3.4",
     "@types/react-datepicker": "^4.3.4",
     "@types/sqlstring": "^2.3.0",
     "emotion": "10.0.27"
