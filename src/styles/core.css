@@ -1,0 +1,9 @@
+@import url('//cdn.materialdesignicons.com/5.0.45/css/materialdesignicons.min.css');
+
+.react-datepicker-wrapper {
+  display: flex !important;
+  flex-grow: 0;
+  flex-shrink: 1;
+  min-width: unset !important;
+  width: auto;
+}

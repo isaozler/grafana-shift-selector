@@ -1,0 +1,32 @@
+{
+  "name": "isaozler-shiftselector-panel",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "grafana-toolkit plugin:build",
+    "test": "grafana-toolkit plugin:test",
+    "dev": "grafana-toolkit plugin:dev",
+    "watch": "grafana-toolkit plugin:dev --watch",
+    "sign": "grafana-toolkit plugin:sign",
+    "start": "yarn watch"
+  },
+  "author": "Isa Ozler",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@grafana/data": "latest",
+    "@grafana/runtime": "^8.3.2",
+    "@grafana/toolkit": "latest",
+    "@grafana/ui": "latest",
+    "@types/react-datepicker": "^4.3.4",
+    "@types/sqlstring": "^2.3.0",
+    "emotion": "10.0.27"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "dependencies": {
+    "@stitches/react": "^1.2.6",
+    "react-datepicker": "^4.5.0",
+    "sqlstring": "^2.3.2"
+  }
+}
