@@ -28,7 +28,12 @@
         "url": "https://github.com/isaozler/grafana-shift-selector/blob/main/LICENSE"
       }
     ],
-    "screenshots": [],
+    "screenshots": [
+      {
+        "name": "Shift Selector",
+        "path": "img/screenshot.png"
+      }
+    ],
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },

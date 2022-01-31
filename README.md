@@ -5,7 +5,7 @@
 The shift selector allows you to adjust the time range of your grafana dashboard to one specific shift or a range of shifts.
 On this page we'll show you how it works and how you can adjust the displayed shifts to a specific season or production line.
 
-![Shift selector](img/doc/shift_selector_default.png)
+![Shift selector](https://raw.githubusercontent.com/isaozler/grafana-shift-selector/main/img/doc/shift_selector_default.png)
 
 ## Functionalities
 
@@ -17,19 +17,19 @@ The options you can choose are: (from left to right)
 - **Shift** (two dots): change the time selection of the dashboard to the selected shift.
   This will set both start and end time of your dashboard.
   Both start and end time of the shift are displayed in the button.
-  ![Shift selector](img/doc/shift_selector_shift.png)
+  ![Shift selector](https://raw.githubusercontent.com/isaozler/grafana-shift-selector/main/img/doc/shift_selector_shift.png)
 - **Start time** (dot on left): only change the start time of the time selection to the start time of the selected shift.
   The times displayed are the start times of the shifts.
-  ![Shift start time](img/doc/shift_selector_start_time.png)
+  ![Shift start time](https://raw.githubusercontent.com/isaozler/grafana-shift-selector/main/img/doc/shift_selector_start_time.png)
 - **End time** (dot on right): only change the end time of the time selection to the end time of the selected shift.
   The times displayed are the end times of the shifts.
-  ![Shift end time](img/doc/shift_selector_end_time.png)
+  ![Shift end time](https://raw.githubusercontent.com/isaozler/grafana-shift-selector/main/img/doc/shift_selector_end_time.png)
 
 ### Multiple shift groups
 
 The shift selector can also handle multiple shift groups, to distinguish between them, the names of these groups are added in front of the buttons.
 However, if there is only one shift group available, that name will disappear, as in the example above.
-![Multiple shift groups](img/doc/shift_selector_multi.png)
+![Multiple shift groups](https://raw.githubusercontent.com/isaozler/grafana-shift-selector/main/img/doc/shift_selector_multi.png)
 
 ### Changes to time selection in Grafana
 
@@ -119,7 +119,7 @@ In order to add the shift selector, you'll have to do two things:
       ```
 
       This will result in:
-      ![variable settings](img/doc/variable_setting.png)
+      ![variable settings](https://raw.githubusercontent.com/isaozler/grafana-shift-selector/main/img/doc/variable_setting.png)
 
 \*Note that when you have multiple shift groups with shifts with the same name, the names of the shifts should be unique.
 If both shift groups have a shift named 'morning', it is easiest to make the name of the shift unique by adding the shift order or the shift group name to the `AS '__text'` in the query, two examples:

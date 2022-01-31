@@ -30,4 +30,4 @@ e2e-results/
 .idea
 
 .env
-
+*.zip

@@ -47,10 +47,6 @@ import {
 
 const isDark = config.theme.isDark;
 
-interface Props extends PanelProps<{}> {
-  //
-}
-
 type Option = {
   selected: boolean;
   text: string;
@@ -227,7 +223,7 @@ const RangeButton = ({
   );
 };
 
-const ShiftSelector: React.FC<Props> = (props) => {
+const ShiftSelector: React.FC<PanelProps<{}>> = (props) => {
   const { data: _data, width, height, timeRange } = props;
   const locationSrv = getLocationSrv();
   const templateSrv = getTemplateSrv() as TemplateSrv & { timeRange: TimeRange };
@@ -237,7 +233,7 @@ const ShiftSelector: React.FC<Props> = (props) => {
   const [shiftOptions, setShiftOptions] = useState<any>({});
   const [shiftValues, setShiftValues] = useState<any>([]);
   const [customTimeRange, setCustomTimeRange] = useState<any>(null);
-  const [alerts, setAlerts] = useState<any>([]);
+  const [alerts, setAlerts] = useState<TAlert[] | []>([]);
   const [updateType, setUpdateType] = useState<string>(datePartsToSet.both);
   const [closedAlerts, setClosedAlerts] = useState<number[]>([]);
   const [productionDate, setProductionDate] = useState<any>(timeRange.from.unix() * 1000);
@@ -250,15 +246,30 @@ const ShiftSelector: React.FC<Props> = (props) => {
 
   const setAlertHandler = useCallback(
     (alert: TAlert) => {
+      const isDuplicate = !!alerts.find(({ id, text }) => id === alert.id && text === alert.text);
+
+      if (isDuplicate) {
+        return;
+      }
+
       const allAlerts = alerts.filter(({ id }: { id: number }) => alert.id !== id);
       return setAlerts(() => [...allAlerts, alert]);
     },
     [alerts]
   );
 
-  const resetAlert = useCallback((id: number) => {
-    return (alerts: TAlert[]) => [...alerts.filter(({ id: _id }: { id: number }) => _id !== id)];
-  }, []);
+  const resetAlert = useCallback(
+    (id: number) => {
+      const isExisting = !!alerts.find((alert) => id === alert.id);
+
+      if (!isExisting) {
+        return;
+      }
+
+      return setAlerts((alerts: TAlert[]) => [...alerts.filter(({ id: _id }: { id: number }) => _id !== id)]);
+    },
+    [alerts]
+  );
 
   const setTypeChangeHandler = (type: string) => {
     if (type !== updateType) {
@@ -364,8 +375,8 @@ const ShiftSelector: React.FC<Props> = (props) => {
           'YYYY-MM-DD HH:mm'
         )}) is an invalid date-time range selection! Please try again.`,
       });
-    } else {
-      setAlerts(resetAlert(2));
+    } else if (alerts.find(({ id }) => id === 2)) {
+      resetAlert(2);
     }
 
     return {
@@ -393,22 +404,12 @@ const ShiftSelector: React.FC<Props> = (props) => {
       const { id: datasourceId } =
         dataSources.find(({ name }: { name: string }) => name === datasourceRef.current.value) || {};
 
-      if (!!!sqlConfig.values.site_uuid) {
-        setAlertHandler({
-          id: 3,
-          type: 'brandDanger',
-          text: `Error! Datasource 'Shifts Data Model' not found! Please make sure you have this datasource set up correctly.`,
-        });
-      }
-
       if (!datasourceId) {
         return setAlertHandler({
           id: 3,
           type: 'brandDanger',
           text: `Error! Datasource 'Shifts Data Model' not found! Please make sure you have this datasource set up correctly.`,
         });
-      } else {
-        setAlerts(resetAlert(3));
       }
 
       if (
@@ -503,8 +504,7 @@ ORDER by ??, ??
 
           if (shifts.length) {
             setShiftValues(() => shifts);
-            setAlerts(resetAlert(4));
-            return;
+            return resetAlert(4);
           }
         }
 
@@ -559,11 +559,6 @@ ORDER by ??, ??
   }, [width, height, setViewType]);
 
   useEffect(() => {
-    const shiftOptions: any = templateSrv
-      .getVariables()
-      .find(({ name }: { name: string }) => name === vars.queryShiftsOptions);
-    setShiftOptions(() => shiftOptions);
-
     if (!shiftOptions || !shiftOptions?.options?.length) {
       if (shiftOptions?.options?.length === 0) {
         setAlertHandler({
@@ -578,10 +573,10 @@ ORDER by ??, ??
           text: `Error! Please configure the panel variables. For more info see documentation`,
         });
       }
-    } else {
-      setAlerts(resetAlert(5));
+    } else if (alerts.find(({ id }) => id === 5)) {
+      resetAlert(5);
     }
-  }, [resetAlert, shiftOptions, templateSrv, setAlertHandler, siteUUID]);
+  }, [resetAlert, shiftOptions, alerts, setAlertHandler, siteUUID]);
 
   useEffect(() => {
     if (shiftValues.length && shiftOptions?.options && !closedAlerts.includes(1)) {
@@ -611,16 +606,22 @@ ORDER by ??, ??
         }
       }
 
-      setAlerts(resetAlert(1));
+      if (alerts.find(({ id }) => id === 1)) {
+        resetAlert(1);
+      }
     }
-  }, [closedAlerts, shiftOptions, shiftValues, resetAlert, setAlertHandler]);
+  }, [closedAlerts, alerts, shiftOptions, shiftValues, resetAlert, setAlertHandler]);
 
   useEffect(() => {
     if (sqlConfig) {
       getValues();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [siteUUID, sqlConfig]);
+  }, [siteUUID, sqlConfig, getValues]);
+
+  useEffect(() => {
+    const data: any = templateSrv.getVariables().find(({ name }: { name: string }) => name === vars.queryShiftsOptions);
+    setShiftOptions(() => data);
+  }, [setShiftOptions, templateSrv]);
 
   useEffect(() => {
     try {
@@ -684,7 +685,7 @@ ORDER by ??, ??
             {text}
             <button
               onClick={() => {
-                setAlerts(resetAlert(id));
+                resetAlert(id);
                 setClosedAlerts((d: number[]) => [...(new Set([...d, id]) as any)]);
               }}
             >
