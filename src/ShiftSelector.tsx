@@ -87,6 +87,44 @@ interface EIVariableModel {
 
 type IVariableModel = VariableModel & EIVariableModel;
 
+type TSqlConfig = {
+  lookup: {
+    shift_groups: string;
+    shifts: string;
+  };
+  project: {
+    shift_groups: {
+      name: string;
+      site_uuid: string;
+      uuid: string;
+    };
+    shifts: {
+      end_time: string;
+      group_uuid: string;
+      order: string;
+      start_time: string;
+      uuid: string;
+    };
+  };
+  schema: {
+    shifts: string;
+    shift_groups: string;
+  };
+  static?: {
+    shifts: TStaticShift[];
+  };
+};
+
+type TStaticShift = {
+  group: string;
+  group_uuid: string;
+  uuid: string;
+  label: string;
+  startTime: string;
+  endTime: string;
+  order: string;
+};
+
 const parseShiftData = (uuid: string, values: any[]) => {
   const { text: data } = values.find(({ value }) => value === uuid) || {};
 
@@ -238,12 +276,52 @@ const ShiftSelector: React.FC<PanelProps<{}>> = (props) => {
   const [closedAlerts, setClosedAlerts] = useState<number[]>([]);
   const [productionDate, setProductionDate] = useState<any>(timeRange.from.unix() * 1000);
   const [siteUUID, setSiteUUID] = useState<any>();
-  const [sqlConfig, setSqlConfig] = useState<any>();
+  const [isStatic, setIsStatic] = useState<boolean>(false);
+  const [sqlConfig, setSqlConfig] = useState<TSqlConfig | null>(null);
 
   const btnStartEndIsActive = updateType === datePartsToSet.both;
   const btnStartIsActive = updateType === datePartsToSet.from;
   const btnEndIsActive = updateType === datePartsToSet.to;
 
+  const processShifts = useCallback(({ rowsCount, responseFields }) => {
+    return Array.from({ length: rowsCount })
+      .reduce((res: any[], _row: any, rowIndex: number) => {
+        return [
+          ...res,
+          responseFields.reduce((resFields: {}, field: any) => {
+            return {
+              ...resFields,
+              [field.name]: field.values.toArray()[rowIndex],
+            };
+          }, {}),
+        ];
+      }, [])
+      .reduce((shiftRes, shift) => {
+        return [
+          ...shiftRes,
+          {
+            selected: false,
+            text: Object.values(shift).join('|'),
+            value: shift.uuid,
+          },
+        ];
+      }, []);
+  }, []);
+  const processStaticOptions = useCallback((shiftOptions) => {
+    const options = {
+      options: shiftOptions.reduce((res: any, item: TStaticShift) => {
+        return [
+          ...res,
+          {
+            text: item.label,
+            value: item.uuid,
+            selected: false,
+          },
+        ];
+      }, []),
+    };
+    return options;
+  }, []);
   const setAlertHandler = useCallback(
     (alert: TAlert) => {
       const isDuplicate = !!alerts.find(({ id, text }) => id === alert.id && text === alert.text);
@@ -388,12 +466,30 @@ const ShiftSelector: React.FC<PanelProps<{}>> = (props) => {
 
   const getValues = useCallback(async () => {
     try {
+      if (isStatic && sqlConfig?.static?.shifts) {
+        const staticShiftsValues = sqlConfig?.static?.shifts.reduce((res: any[], item: TStaticShift) => {
+          return [
+            ...res,
+            {
+              selected: false,
+              text: [item.group, item.group_uuid, item.uuid, item.startTime, item.endTime, item.order].join('|'),
+              value: item.uuid,
+            },
+          ];
+        }, []);
+
+        if (staticShiftsValues.length) {
+          setShiftValues(() => staticShiftsValues);
+          return resetAlert(4);
+        }
+      }
+
       const db = getBackendSrv() as BackendSrv;
       const dataSources = getDataSourceSrv().getList() as any;
       const datasourceRef: IVariableModel | null =
         (templateSrv.getVariables().find(({ name }) => name === vars.varDataModel) as IVariableModel) || null;
 
-      if (!datasourceRef) {
+      if (!datasourceRef || !sqlConfig) {
         return setAlertHandler({
           id: 3,
           type: 'brandDanger',
@@ -479,28 +575,7 @@ ORDER by ??, ??
         const rowsCount = field?.values?.toArray().length || 0;
 
         if (rowsCount) {
-          const shifts = Array.from({ length: rowsCount })
-            .reduce((res: any[], _row: any, rowIndex: number) => {
-              return [
-                ...res,
-                responseFields.reduce((resFields: {}, field: any) => {
-                  return {
-                    ...resFields,
-                    [field.name]: field.values.toArray()[rowIndex],
-                  };
-                }, {}),
-              ];
-            }, [])
-            .reduce((shiftRes, shift) => {
-              return [
-                ...shiftRes,
-                {
-                  selected: false,
-                  text: Object.values(shift).join('|'),
-                  value: shift.uuid,
-                },
-              ];
-            }, []);
+          const shifts = processShifts({ rowsCount, responseFields });
 
           if (shifts.length) {
             setShiftValues(() => shifts);
@@ -522,7 +597,7 @@ ORDER by ??, ??
       });
       throw error;
     }
-  }, [siteUUID, sqlConfig, resetAlert, setAlertHandler, setShiftValues, templateSrv]);
+  }, [siteUUID, sqlConfig, isStatic, resetAlert, setAlertHandler, setShiftValues, processShifts, templateSrv]);
 
   useEffect(() => {
     const dateRange = {
@@ -619,9 +694,14 @@ ORDER by ??, ??
   }, [siteUUID, sqlConfig, getValues]);
 
   useEffect(() => {
-    const data: any = templateSrv.getVariables().find(({ name }: { name: string }) => name === vars.queryShiftsOptions);
-    setShiftOptions(() => data);
-  }, [setShiftOptions, templateSrv]);
+    if (isStatic && sqlConfig?.static?.shifts) {
+      setShiftOptions(() => processStaticOptions(sqlConfig.static?.shifts));
+    } else {
+      setShiftOptions(() =>
+        templateSrv.getVariables().find(({ name }: { name: string }) => name === vars.queryShiftsOptions)
+      );
+    }
+  }, [isStatic, sqlConfig, setShiftOptions, processStaticOptions, templateSrv]);
 
   useEffect(() => {
     try {
@@ -639,6 +719,8 @@ ORDER by ??, ??
 
         const data = JSON.parse(rawSqlData.current.value);
 
+        setIsStatic(!!data.static?.shifts);
+
         if (!!data?.values?.site_uuid) {
           setSiteUUID(() => data.values.site_uuid);
         }
@@ -646,7 +728,11 @@ ORDER by ??, ??
         setSqlConfig(() => data);
       }
 
-      setShiftOptions(() => templateSrv.getVariables().find(({ name }) => name === vars.queryShiftsOptions) || null);
+      if (!!sqlConfig?.static?.shifts.length) {
+        setShiftOptions(() => processStaticOptions(sqlConfig.static?.shifts));
+      } else {
+        setShiftOptions(() => templateSrv.getVariables().find(({ name }) => name === vars.queryShiftsOptions) || null);
+      }
 
       if (!initDateRage) {
         setInitDateRage(() => ({
@@ -669,6 +755,7 @@ ORDER by ??, ??
     setAlertHandler,
     setShiftOptions,
     setInitDateRage,
+    processStaticOptions,
     initDateRage,
     templateSrv,
     sqlConfig,

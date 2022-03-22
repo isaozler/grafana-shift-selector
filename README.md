@@ -7,6 +7,53 @@ On this page we'll show you how it works and how you can adjust the displayed sh
 
 ![Shift selector](https://raw.githubusercontent.com/isaozler/grafana-shift-selector/main/img/doc/shift_selector_default.png)
 
+# Quick Start (static shifts)
+
+With this plugin you are able to choose between dynamic (from a `datasource`) and static (from `var_query_map.static.shifts` variables).
+
+To set shifts (groups), set the value of the `var_query_map` variable to:
+
+```json
+{
+  "static": {
+    "shifts": [
+      {
+        "group": "Group 1",
+        "group_uuid": "group_uuid_1",
+        "uuid": "shift_uuid_1",
+        "label": "Morning Custom",
+        "startTime": "06:00:00",
+        "endTime": "14:00:00",
+        "order": 1
+      },
+      {
+        "group": "Group 2",
+        "group_uuid": "group_uuid_2",
+        "uuid": "shift_uuid_2",
+        "label": "Afternoon Custom",
+        "startTime": "14:00:00",
+        "endTime": "22:00:00",
+        "order": 1
+      },
+      {
+        "group": "Group 2",
+        "group_uuid": "group_uuid_2",
+        "uuid": "shift_uuid_3",
+        "label": "Night Custom",
+        "startTime": "22:00:00",
+        "endTime": "06:00:00",
+        "order": 2
+      }
+    ]
+  }
+}
+```
+
+Now you are able to see the shifts in two groups. `Group 1` and `Group 2`. This could for example be summer or winter time.
+
+In order to set you shifts from a datasource please continue to read.
+
+# Shifts from datasources
 ## Functionalities
 
 The options you can choose are: (from left to right)

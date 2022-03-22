@@ -28,5 +28,36 @@ const var_query_map = {
   },
   "values": {
     "site_uuid": ""
+  },
+  "static": {
+    "shifts": [
+      {
+        "group": "Group 1 eg. Summer",
+        "group_uuid": "uuid_1",
+        "uuid": "shift_uuid_1",
+        "label": "Morning Custom",
+        "startTime": "06:00:00",
+        "endTime": "14:00:00",
+        "order": 1
+      },
+      {
+        "group": "Group 2 eg. Winter",
+        "group_uuid": "uuid_2",
+        "uuid": "shift_uuid_2",
+        "label": "Afternoon Custom",
+        "startTime": "14:00:00",
+        "endTime": "22:00:00",
+        "order": 1
+      },
+      {
+        "group": "Group 2 eg. Winter",
+        "group_uuid": "uuid_2",
+        "uuid": "shift_uuid_3",
+        "label": "Night Custom",
+        "startTime": "22:00:00",
+        "endTime": "06:00:00",
+        "order": 2
+      }
+    ]
   }
 }
