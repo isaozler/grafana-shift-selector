@@ -32,6 +32,38 @@ export const RangeButtonComp = styled('button', {
       },
     },
   },
+  '&.type--icon-only': {
+    '&:before': {
+      display: 'unset',
+      margin: 'unset !important',
+    },
+  },
+  '&.type--text-only': {
+    whiteSpace: 'nowrap',
+    width: 'unset',
+    '&:before': {
+      content: 'unset',
+    },
+  },
+  '&.type--text-and-icon': {
+    whiteSpace: 'nowrap',
+    width: 'unset',
+  },
+  '&.input-type': {
+    '&--start': {
+      flexDirection: 'row-reverse',
+      '&:before': {
+        display: 'inline-block',
+        marginLeft: 10,
+      },
+    },
+    '&--end, &--start-end': {
+      '&:before': {
+        display: 'inline-block',
+        marginRight: 10,
+      },
+    },
+  },
 });
 
 export const ShiftOptionsWrapper = styled('div', {
@@ -74,6 +106,11 @@ export const ShiftsWrapper = styled('div', {
       true: {
         padding: 0,
         border: 'none',
+      },
+    },
+    isRealtime: {
+      true: {
+        borderColor: palette.orange,
       },
     },
   },
@@ -156,6 +193,12 @@ export const ShiftButton = styled('button', {
         color: palette.white,
         borderColor: palette.orange,
       },
+    },
+    isRealtime: {
+      true: {
+        content: '',
+      },
+      false: {},
     },
   },
 });

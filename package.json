@@ -1,6 +1,6 @@
 {
   "name": "isaozler-shiftselector-panel",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "scripts": {
     "build": "grafana-toolkit plugin:build",

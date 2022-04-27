@@ -11,7 +11,7 @@ import {
   LoadingState,
   DataQueryResponse,
   Vector,
-  VariableModel,
+  dateTime,
 } from '@grafana/data';
 import {
   getLocationSrv,
@@ -26,7 +26,20 @@ import {
 
 import DatePicker from 'react-datepicker';
 
-import { ShiftI } from './types';
+import {
+  datePartOptions,
+  datePartsToSet,
+  EViewType,
+  IVariableModel,
+  Option,
+  ShiftI,
+  TAlert,
+  TPropOptions,
+  TRangeButtonViewType,
+  TSqlConfig,
+  TStaticShift,
+  TViewTypeOptions,
+} from './types';
 import { buttonTypes } from './utils';
 
 import './styles/core.css';
@@ -46,84 +59,6 @@ import {
 } from './styles/components';
 
 const isDark = config.theme.isDark;
-
-type Option = {
-  selected: boolean;
-  text: string;
-  value: string;
-};
-
-type datePartOptions = 'both' | 'from' | 'to';
-enum datePartsToSet {
-  both = 'both',
-  from = 'from',
-  to = 'to',
-}
-
-enum EViewType {
-  row = 'row',
-  column = 'column',
-}
-type TViewTypeOptions = keyof typeof EViewType;
-
-type TAlert = {
-  id: number;
-  type: string;
-  text: string;
-};
-
-type TOption = {
-  text: string;
-  value: string;
-};
-
-interface EIVariableModel {
-  query: string;
-  options: TOption[];
-  current: {
-    value: string;
-  };
-}
-
-type IVariableModel = VariableModel & EIVariableModel;
-
-type TSqlConfig = {
-  lookup: {
-    shift_groups: string;
-    shifts: string;
-  };
-  project: {
-    shift_groups: {
-      name: string;
-      site_uuid: string;
-      uuid: string;
-    };
-    shifts: {
-      end_time: string;
-      group_uuid: string;
-      order: string;
-      start_time: string;
-      uuid: string;
-    };
-  };
-  schema: {
-    shifts: string;
-    shift_groups: string;
-  };
-  static?: {
-    shifts: TStaticShift[];
-  };
-};
-
-type TStaticShift = {
-  group: string;
-  group_uuid: string;
-  uuid: string;
-  label: string;
-  startTime: string;
-  endTime: string;
-  order: string;
-};
 
 const parseShiftData = (uuid: string, values: any[]) => {
   const { text: data } = values.find(({ value }) => value === uuid) || {};
@@ -154,19 +89,7 @@ enum vars {
   varShiftsValuesName = 'shifts_values',
 }
 
-const ShiftOptions = ({
-  options,
-  shiftSelectHandler,
-  setType,
-  viewType,
-  data: optionsData,
-}: {
-  data: any[];
-  setType: datePartOptions;
-  viewType: TViewTypeOptions;
-  options: Option[];
-  shiftSelectHandler: (shift: ShiftI) => void;
-}) => {
+const getShifts = (options: Option[], optionsData: any[]) => {
   const shifts: ShiftData = options.reduce((res: any, { text, value: uuid }, index: number) => {
     const data = parseShiftData(uuid, optionsData);
 
@@ -188,6 +111,28 @@ const ShiftOptions = ({
     };
   }, {});
 
+  return shifts;
+};
+
+const ShiftOptions = ({
+  options,
+  shiftSelectHandler,
+  setType,
+  viewType,
+  data: optionsData,
+  isAutoSelectShift,
+  autoSelectShiftGroup,
+}: {
+  data: any[];
+  setType: datePartOptions;
+  viewType: TViewTypeOptions;
+  options: Option[];
+  shiftSelectHandler: (shift: ShiftI) => void;
+  isAutoSelectShift: boolean;
+  autoSelectShiftGroup: string | undefined;
+}) => {
+  const shifts = getShifts(options, optionsData);
+
   if (!viewType) {
     viewType = EViewType.row;
   }
@@ -195,12 +140,14 @@ const ShiftOptions = ({
   return (
     <ShiftOptionsWrapper viewType={viewType as any}>
       {Object.keys(shifts).map((key: string) => {
+        const isRealtimeActive = isAutoSelectShift && autoSelectShiftGroup === shifts[key][0].shiftGroupUUID;
         return (
           <ShiftsWrapper
             key={key}
             viewType={viewType as any}
             isDark={isDark}
             isSingleOption={Object.keys(shifts).length === 1}
+            isRealtime={isRealtimeActive}
           >
             {Object.keys(shifts).length > 1 && (
               <ShiftLabel>{shifts[key][0] ? shifts[key][0].shiftGroupName : key}</ShiftLabel>
@@ -226,6 +173,7 @@ const ShiftOptions = ({
                       isActive={isActive}
                       className={`btn navbar-button mdi mdi-weather-${buttonTypes(label)}`}
                       onClick={() => shiftSelectHandler(item)}
+                      isRealtime={isRealtimeActive}
                     >
                       {label} ({setType === 'both' ? `${start} - ${end}` : setType === 'from' ? `${start}` : `${end}`})
                     </ShiftButton>
@@ -241,14 +189,20 @@ const ShiftOptions = ({
 
 const RangeButton = ({
   title,
+  label,
   icon,
   isActive,
   onClick,
+  viewType,
+  buttonType,
 }: {
   title: string;
+  label: string;
   icon: string;
   isActive: boolean;
   onClick: () => void;
+  viewType: TRangeButtonViewType;
+  buttonType: 'start-end' | 'start' | 'end';
 }) => {
   return (
     <RangeButtonComp
@@ -256,18 +210,31 @@ const RangeButton = ({
       onClick={onClick}
       isDark={isDark}
       isActive={isActive}
-      className={`btn mdi ${icon}`}
-    />
+      className={['btn', 'mdi', icon, `type--${viewType}`, `input-type--${buttonType}`].join(' ')}
+    >
+      {viewType === 'text-and-icon' || viewType === 'text-only' ? label : ''}
+    </RangeButtonComp>
   );
 };
 
 const ShiftSelector: React.FC<PanelProps<{}>> = (props) => {
-  const { data: _data, width, height, timeRange } = props;
+  const { data: _data, width, height, timeRange, eventBus } = props;
+  const {
+    isShowDayLabel,
+    isAutoSelectShift,
+    autoSelectShiftGroup,
+    refreshInterval,
+    dayLabel,
+    rangeLabelType,
+    rangeOptionLabelStartEnd,
+    rangeOptionLabelStart,
+    rangeOptionLabelEnd,
+  } = props.options as TPropOptions;
   const locationSrv = getLocationSrv();
   const templateSrv = getTemplateSrv() as TemplateSrv & { timeRange: TimeRange };
   const dateRange = templateSrv.timeRange;
   const [_viewType, setViewType] = useState<string>('default');
-  const [initDateRage, setInitDateRage] = useState<any>(null);
+  const [initDateRange, setInitDateRange] = useState<any>(null);
   const [shiftOptions, setShiftOptions] = useState<any>({});
   const [shiftValues, setShiftValues] = useState<any>([]);
   const [customTimeRange, setCustomTimeRange] = useState<any>(null);
@@ -349,6 +316,15 @@ const ShiftSelector: React.FC<PanelProps<{}>> = (props) => {
     [alerts]
   );
 
+  const getRefreshRate = useCallback(() => {
+    const refreshValue = new URLSearchParams(window.location.search).get('refresh');
+    const refresh = {
+      ...(refreshValue ? { refresh: refreshValue } : isAutoSelectShift ? { refresh: refreshInterval } : {}),
+    };
+
+    return refresh;
+  }, [isAutoSelectShift, refreshInterval]);
+
   const setTypeChangeHandler = (type: string) => {
     if (type !== updateType) {
       setUpdateType(type);
@@ -358,23 +334,15 @@ const ShiftSelector: React.FC<PanelProps<{}>> = (props) => {
       }));
     }
   };
-  const shiftSelectHandler = (shift: ShiftI) => setShiftParams(shift);
-  const setShiftParams = (shift: ShiftI) => {
-    const { from, to } = updateDateTime(shift) || {};
-
-    if (from && to) {
-      setCustomTimeRange(() => ({
-        from,
-        to,
-        uuid: shift.uuid,
-      }));
-    }
-  };
-  const getQueryDate = (type: string) => {
-    const queryTime = new URLSearchParams(window.location.search).get(type);
-    const time = !queryTime || queryTime?.includes('now') ? timeRange.from : dateTimeAsMoment(+queryTime);
-    return time;
-  };
+  const shiftSelectHandler = (shift: ShiftI) => setShiftParams(shift, isAutoSelectShift);
+  const getQueryDate = useCallback(
+    (type: string) => {
+      const queryTime = new URLSearchParams(window.location.search).get(type);
+      const time = !queryTime || queryTime?.includes('now') ? timeRange.from : dateTimeAsMoment(+queryTime);
+      return time;
+    },
+    [timeRange.from]
+  );
   const dateFormat = 'yyyy-MM-dd';
   const dateTimeFormat = `YYYY-MM-DD HH:mm:ss`;
 
@@ -387,82 +355,107 @@ const ShiftSelector: React.FC<PanelProps<{}>> = (props) => {
       relativeTo,
     };
   }
+  const updateDateTime = useCallback(
+    (shift: ShiftI) => {
+      let { relativeFrom, relativeTo } = getRelativeDates();
+      let fromDate: any;
+      let toDate: any;
 
-  function updateDateTime(shift: ShiftI) {
-    let { relativeFrom, relativeTo } = getRelativeDates();
-    let fromDate: any;
-    let toDate: any;
-
-    if (updateType === datePartsToSet.from) {
-      fromDate = dateTimeAsMoment(productionDate);
-      toDate = timeRange.to;
-    } else if (updateType === datePartsToSet.to) {
-      fromDate = timeRange.from;
-      toDate = dateTimeAsMoment(productionDate);
-    } else {
-      fromDate = dateTimeAsMoment(productionDate);
-      toDate = dateTimeAsMoment(productionDate);
-    }
-
-    let tFrom: string;
-    let tTo: string;
-    let { start, end, order } = shift;
-    const [mObjStart, mObjEnd] = [dateTimeAsMoment(`2020-01-01 ${start}`), dateTimeAsMoment(`2020-01-01 ${end}`)];
-    const shiftDiffDay = mObjStart.unix() > mObjEnd.unix();
-
-    if (shiftDiffDay) {
-      if (order === 1 && (updateType === datePartsToSet.both || updateType === datePartsToSet.from)) {
-        fromDate.subtract(1, 'days');
-      } else if (updateType === datePartsToSet.both || updateType === datePartsToSet.to) {
-        toDate.add(1, 'days');
+      if (updateType === datePartsToSet.from) {
+        fromDate = dateTimeAsMoment(productionDate);
+        toDate = timeRange.to;
+      } else if (updateType === datePartsToSet.to) {
+        fromDate = timeRange.from;
+        toDate = dateTimeAsMoment(productionDate);
+      } else {
+        fromDate = dateTimeAsMoment(productionDate);
+        toDate = dateTimeAsMoment(productionDate);
       }
-    }
 
-    if (updateType === datePartsToSet.both) {
-      relativeFrom = false;
-      relativeTo = false;
-    } else if (updateType === datePartsToSet.from) {
-      if (!relativeTo) {
-        end = getQueryDate('to').format('HH:mm:ss');
+      let tFrom: string;
+      let tTo: string;
+      let { start, end, order } = shift;
+      const [mObjStart, mObjEnd] = [dateTimeAsMoment(`2020-01-01 ${start}`), dateTimeAsMoment(`2020-01-01 ${end}`)];
+      const shiftDiffDay = mObjStart.unix() > mObjEnd.unix();
+
+      if (shiftDiffDay) {
+        if (order === 1 && (updateType === datePartsToSet.both || updateType === datePartsToSet.from)) {
+          fromDate.subtract(1, 'days');
+        } else if (updateType === datePartsToSet.both || updateType === datePartsToSet.to) {
+          toDate.add(1, 'days');
+        }
       }
-      relativeFrom = false;
-    } else if (updateType === datePartsToSet.to) {
-      if (!relativeFrom) {
-        start = getQueryDate('from').format('HH:mm:ss');
+
+      if (updateType === datePartsToSet.both) {
+        relativeFrom = false;
+        relativeTo = false;
+      } else if (updateType === datePartsToSet.from) {
+        if (!relativeTo) {
+          end = getQueryDate('to').format('HH:mm:ss');
+        }
+        relativeFrom = false;
+      } else if (updateType === datePartsToSet.to) {
+        if (!relativeFrom) {
+          start = getQueryDate('from').format('HH:mm:ss');
+        }
+        relativeTo = false;
       }
-      relativeTo = false;
-    }
 
-    const fromString = fromDate.format('YYYY-MM-DD');
-    tFrom = `${fromString} ${start}`;
-    tTo = `${toDate.format('YYYY-MM-DD')} ${end}`;
-    const from: any = !relativeFrom
-      ? dateTimeAsMoment(tFrom).unix() * 1000
-      : new URLSearchParams(window.location.search).get('from');
-    const to: any = !relativeTo
-      ? dateTimeAsMoment(tTo).unix() * 1000
-      : new URLSearchParams(window.location.search).get('to');
-    const _checkFrom = dateTimeAsMoment(from);
-    const _checkTo = dateTimeAsMoment(to);
+      const fromString = fromDate.format('YYYY-MM-DD');
+      tFrom = `${fromString} ${start}`;
+      tTo = `${toDate.format('YYYY-MM-DD')} ${end}`;
+      const from: any = !relativeFrom
+        ? dateTimeAsMoment(tFrom).unix() * 1000
+        : new URLSearchParams(window.location.search).get('from');
+      const to: any = !relativeTo
+        ? dateTimeAsMoment(tTo).unix() * 1000
+        : new URLSearchParams(window.location.search).get('to');
+      const _checkFrom = dateTimeAsMoment(from);
+      const _checkTo = dateTimeAsMoment(to);
 
-    if (_checkFrom.unix() >= _checkTo.unix()) {
-      setAlertHandler({
-        id: 2,
-        type: 'brandDanger',
-        text: `Error! From (${_checkFrom.format('YYYY-MM-DD HH:mm')}) to (${_checkTo.format(
-          'YYYY-MM-DD HH:mm'
-        )}) is an invalid date-time range selection! Please try again.`,
-      });
-    } else if (alerts.find(({ id }) => id === 2)) {
-      resetAlert(2);
-    }
+      if (_checkFrom.unix() >= _checkTo.unix()) {
+        setAlertHandler({
+          id: 2,
+          type: 'brandDanger',
+          text: `Error! From (${_checkFrom.format('YYYY-MM-DD HH:mm')}) to (${_checkTo.format(
+            'YYYY-MM-DD HH:mm'
+          )}) is an invalid date-time range selection! Please try again.`,
+        });
+      } else if (alerts.find(({ id }) => id === 2)) {
+        resetAlert(2);
+      }
 
-    return {
-      from,
-      to,
-      diffSet: {},
-    };
-  }
+      return {
+        from,
+        to,
+        diffSet: {},
+      };
+    },
+    [alerts, getQueryDate, productionDate, resetAlert, setAlertHandler, timeRange.from, timeRange.to, updateType]
+  );
+
+  const setShiftParams = useCallback(
+    (shift: ShiftI, isManualUpdate = false) => {
+      const { from, to } = updateDateTime(shift) || {};
+
+      if (isAutoSelectShift && isManualUpdate) {
+        return setAlertHandler({
+          id: 10,
+          type: 'brandDanger',
+          text: `Warning! Currently the selector is in realtime mode. You can change this in the panel options by setting "Real-time shift auto-select" to false.`,
+        });
+      }
+
+      if (from && to) {
+        setCustomTimeRange(() => ({
+          from,
+          to,
+          uuid: shift.uuid,
+        }));
+      }
+    },
+    [isAutoSelectShift, updateDateTime, setAlertHandler, setCustomTimeRange]
+  );
 
   const getValues = useCallback(async () => {
     try {
@@ -605,25 +598,26 @@ ORDER by ??, ??
       to: timeRange.to.format(dateTimeFormat),
     };
 
-    setInitDateRage(() => dateRange);
+    setInitDateRange(() => dateRange);
 
     if (customTimeRange) {
       const { from, to, uuid } = customTimeRange || {};
       const fromCheck = typeof from === 'string' ? timeRange.from.unix() * 1000 : from;
       const toCheck = typeof to === 'string' ? timeRange.to.unix() * 1000 : to;
       const isSwapDates = fromCheck > toCheck;
+      const query = {
+        from: isSwapDates ? to : from,
+        to: isSwapDates ? from : to,
+        [vars.queryShiftsOptions]: uuid,
+        ...getRefreshRate(),
+      };
 
       locationSrv.update({
         partial: true,
-        query: {
-          from: isSwapDates ? to : from,
-          to: isSwapDates ? from : to,
-          [vars.queryShiftsOptions]: uuid,
-        },
-        replace: true,
+        query,
       });
     }
-  }, [dateTimeFormat, locationSrv, customTimeRange, timeRange.to, timeRange.from, setInitDateRage]);
+  }, [dateTimeFormat, locationSrv, customTimeRange, timeRange.to, timeRange.from, getRefreshRate, setInitDateRange]);
 
   useEffect(() => {
     if (width < 400) {
@@ -694,6 +688,15 @@ ORDER by ??, ??
   }, [siteUUID, sqlConfig, getValues]);
 
   useEffect(() => {
+    locationSrv.update({
+      partial: true,
+      query: {
+        ...getRefreshRate(),
+      },
+    });
+  }, [locationSrv, getRefreshRate]);
+
+  useEffect(() => {
     if (isStatic && sqlConfig?.static?.shifts) {
       setShiftOptions(() => processStaticOptions(sqlConfig.static?.shifts));
     } else {
@@ -702,6 +705,79 @@ ORDER by ??, ??
       );
     }
   }, [isStatic, sqlConfig, setShiftOptions, processStaticOptions, templateSrv]);
+
+  useEffect(() => {
+    const subscriber = eventBus.getStream({ type: 'refresh' } as any).subscribe((event) => {
+      const shifts = getShifts(shiftOptions?.options, shiftValues);
+      const [initGroup] = Object.keys(shifts) || [];
+
+      let activeShifts =
+        autoSelectShiftGroup && shifts[autoSelectShiftGroup] ? shifts[autoSelectShiftGroup] : shifts[initGroup];
+      const isRealtimeActive = !!(isAutoSelectShift && autoSelectShiftGroup);
+
+      activeShifts
+        .filter((shift: ShiftI) => {
+          if (!isAutoSelectShift || !autoSelectShiftGroup) {
+            return shift;
+          }
+
+          if (autoSelectShiftGroup === shift.shiftGroupUUID) {
+            return shift;
+          }
+
+          return false;
+        })
+        .sort((a: any, b: any) => a?.order - b?.order)
+        .map((item: ShiftI) => {
+          if (!isRealtimeActive) {
+            return item;
+          }
+
+          const { uuid, start: _start, end: _end } = item || {};
+          const [sh] = _start.split(':');
+          const [eh] = _end.split(':');
+          const isActive =
+            new URLSearchParams(window.location.search).get(vars.queryShiftsOptions) === uuid ||
+            new URLSearchParams(window.location.search).get(vars.queryShiftsOptions) === 'All';
+          const isSetFromTo =
+            new URLSearchParams(window.location.search).get('from') &&
+            new URLSearchParams(window.location.search).get('to')
+              ? true
+              : false;
+
+          const localTime = dateTime();
+
+          let startDate = localTime.format('YYYY-MM-DD');
+          let startShiftTime = dateTime(_start, 'HH:mm').unix();
+          let endDate = dateTime().format('YYYY-MM-DD');
+          let endShiftTime = dateTime(_end, 'HH:mm').unix();
+          const currentHour = +dateTime().format('H');
+
+          if (sh > eh) {
+            if (currentHour < sh) {
+              startDate = dateTime().subtract(1, 'days').format('YYYY-MM-DD');
+              startShiftTime = dateTime(`${startDate} ${_start}`, 'YYYY-MM-DD HH:mm').unix();
+            } else {
+              endDate = dateTime().add(1, 'days').format('YYYY-MM-DD');
+              endShiftTime = dateTime(`${endDate} ${_end}`, 'YYYY-MM-DD HH:mm').unix();
+            }
+
+            const prodDate = dateTimeAsMoment();
+            setProductionDate(() => prodDate.unix() * 1000);
+          }
+
+          if (dateTime().unix() > startShiftTime && dateTime().unix() < endShiftTime && (!isActive || !isSetFromTo)) {
+            setShiftParams(item, false);
+          }
+
+          return item;
+        });
+    });
+
+    return () => {
+      subscriber.unsubscribe();
+    };
+  }, [eventBus, setShiftParams, autoSelectShiftGroup, isAutoSelectShift, shiftOptions, shiftValues]);
 
   useEffect(() => {
     try {
@@ -734,8 +810,8 @@ ORDER by ??, ??
         setShiftOptions(() => templateSrv.getVariables().find(({ name }) => name === vars.queryShiftsOptions) || null);
       }
 
-      if (!initDateRage) {
-        setInitDateRage(() => ({
+      if (!initDateRange) {
+        setInitDateRange(() => ({
           from: dateRange.from.format(dateTimeFormat),
           to: dateRange.to.format(dateTimeFormat),
         }));
@@ -754,9 +830,9 @@ ORDER by ??, ??
     setSqlConfig,
     setAlertHandler,
     setShiftOptions,
-    setInitDateRage,
+    setInitDateRange,
     processStaticOptions,
-    initDateRage,
+    initDateRange,
     templateSrv,
     sqlConfig,
     siteUUID,
@@ -789,41 +865,56 @@ ORDER by ??, ??
           }}
           viewType={_viewType as any}
         >
-          <SelectorInputs>
-            <ProductionDay isDark={isDark}>
-              <span>Select day</span>
-              <DatePicker
-                className="production-day-selector"
-                selected={productionDate}
-                onChange={(date: Date) => setProductionDate(+date)}
-                dateFormat={dateFormat}
-              />
-              <RangeButton
-                title="Set shift times both from and to times"
-                icon="mdi-ray-start-end"
-                onClick={() => setTypeChangeHandler(datePartsToSet.both)}
-                isActive={btnStartEndIsActive}
-              />
-              <RangeButton
-                title="Set shift start time"
-                icon="mdi-ray-start"
-                onClick={() => setTypeChangeHandler(datePartsToSet.from)}
-                isActive={btnStartIsActive}
-              />
-              <RangeButton
-                title="Set shift end time"
-                icon="mdi-ray-end"
-                onClick={() => setTypeChangeHandler(datePartsToSet.to)}
-                isActive={btnEndIsActive}
-              />
-            </ProductionDay>
-          </SelectorInputs>
+          {!isAutoSelectShift ? (
+            <SelectorInputs>
+              <ProductionDay isDark={isDark}>
+                {isShowDayLabel ? <span>{dayLabel || 'Select day'}</span> : <></>}
+                <DatePicker
+                  className="production-day-selector"
+                  selected={productionDate}
+                  onChange={(date: Date) => setProductionDate(+date)}
+                  dateFormat={dateFormat}
+                />
+                <RangeButton
+                  viewType={rangeLabelType}
+                  buttonType="start-end"
+                  title="Set shift times both from and to times"
+                  label={rangeOptionLabelStartEnd}
+                  icon="mdi-ray-start-end"
+                  onClick={() => setTypeChangeHandler(datePartsToSet.both)}
+                  isActive={btnStartEndIsActive}
+                />
+                <RangeButton
+                  viewType={rangeLabelType}
+                  buttonType="start"
+                  title="Set shift start time"
+                  label={rangeOptionLabelStart}
+                  icon="mdi-ray-start"
+                  onClick={() => setTypeChangeHandler(datePartsToSet.from)}
+                  isActive={btnStartIsActive}
+                />
+                <RangeButton
+                  viewType={rangeLabelType}
+                  buttonType="end"
+                  title="Set shift end time"
+                  label={rangeOptionLabelEnd}
+                  icon="mdi-ray-end"
+                  onClick={() => setTypeChangeHandler(datePartsToSet.to)}
+                  isActive={btnEndIsActive}
+                />
+              </ProductionDay>
+            </SelectorInputs>
+          ) : (
+            <></>
+          )}
           {shiftValues.length && shiftOptions?.options?.length ? (
             <ShiftOptions
               data={shiftValues}
               setType={updateType}
               viewType={_viewType}
               shiftSelectHandler={shiftSelectHandler}
+              isAutoSelectShift={isAutoSelectShift}
+              autoSelectShiftGroup={autoSelectShiftGroup}
               {...shiftOptions}
             />
           ) : (
