@@ -9,8 +9,8 @@ export const getBreweryUUID = (name: string): string | null => {
 
 export const buttonTypes = (label: string) => {
   const mapping: any = {
-    'sunset-down': ['afternoon', 'middag'],
-    sunny: ['morning', 'morgen', 'day'],
+    'sunset-down': ['afternoon', 'middag', 'früh'],
+    sunny: ['morning', 'morgen', 'day', 'spät'],
     night: ['night', 'nacht'],
   };
   label = label.trim().toLowerCase();
