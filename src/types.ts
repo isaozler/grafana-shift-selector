@@ -17,17 +17,24 @@ export type Option = {
 };
 
 export type TRangeButtonViewType = 'icon-only' | 'text-and-icon' | 'text-only';
+export type TOptionButtonViewType = 'text-and-icon' | 'text-only';
 
 export type TPropOptions = {
+  isDataSourceShifts: boolean;
   isAutoSelectShift: boolean;
   autoSelectShiftGroup: string;
   isShowDayLabel: boolean;
+  isShowTimeLabel: boolean;
   dayLabel: string;
   rangeLabelType: TRangeButtonViewType;
+  shiftOptionsLabelType: TOptionButtonViewType;
   rangeOptionLabelStartEnd: string;
   rangeOptionLabelStart: string;
   rangeOptionLabelEnd: string;
   refreshInterval: string;
+  var_query_map_dynamic: string;
+  var_query_map_static: string;
+  var_label_mapping: string;
 };
 
 export type datePartOptions = 'both' | 'from' | 'to';
@@ -101,3 +108,40 @@ export type TStaticShift = {
   endTime: string;
   order: string;
 };
+
+export type TExtendedShift = ShiftI & {
+  startDate: moment.Moment
+  endDate: moment.Moment
+  _: any
+}
+
+export type ShiftData = {
+  [key: string]: ShiftI[];
+};
+
+export type ExtendedShiftData = {
+  [key: string]: TExtendedShift[];
+};
+
+export enum vars {
+  queryShiftsOptions = 'var_shifts_options',
+  varQueryMapper = 'var_query_map',
+  varDataModel = 'var_shifts_dataModel',
+  varShiftsValuesName = 'shifts_values',
+}
+
+export type TMappings = {
+  [key: string]: string[]
+}
+
+export type TUpdateActiveShiftProps = {
+  setShiftParams: (shift: TExtendedShift, isManualUpdate?: any) => void
+  autoSelectShiftGroup: string
+  isAutoSelectShift: boolean
+  setProductionDate: React.Dispatch<number>
+  productionDate: number
+  shifts: {
+    options: any,
+    values: any
+  }
+}

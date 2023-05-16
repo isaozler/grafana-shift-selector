@@ -32,7 +32,7 @@
     "node": ">=14"
   },
   "dependencies": {
-    "@stitches/react": "^1.2.6",
+    "@stitches/react": "^1.2.8",
     "grafana-plugin-support": "0.4.0",
     "react-datepicker": "^4.5.0",
     "sqlstring": "^2.3.2"

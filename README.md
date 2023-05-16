@@ -145,7 +145,7 @@ In order to add the shift selector, you'll have to do two things:
       - Hide: Variable
       - Data source
         - Type: Database type
-        - Instance name filter: Name your data source
+        - Instance name filter: Name of your data source containing the shifts data
 
       This will result in:
 
@@ -156,7 +156,7 @@ In order to add the shift selector, you'll have to do two things:
       - Name: `var_query_map`
       - Type: Constant
       - Constant options
-        - Value: here you can paste the mapper object. You can find an example in the `var_query_map.example.js` file.
+        - Value: here you can paste the mapper object. You can find an example in the `var_query_map.example.js` file. You can remove the `static` values because you will be fetching them from your datasource.
           - Options JSON object
             - project
               - shift_groups: contains the `shift_groups` table fields. You can change the `name`, `uuid`, `site_uuid` fields according to your database scheme.
