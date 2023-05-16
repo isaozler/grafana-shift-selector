@@ -11,6 +11,7 @@
     "rootDir": "../src",
     "baseUrl": "../src",
     "typeRoots": ["../node_modules/@types"],
+    "jsx": "react",
     "resolveJsonModule": true
   },
   "ts-node": {
