@@ -9,11 +9,7 @@
       "name": "Isa Ozler",
       "url": "https://isaozler.com"
     },
-    "keywords": [
-      "grafana",
-      "shift",
-      "selector"
-    ],
+    "keywords": ["grafana", "shift", "selector"],
     "logos": {
       "small": "img/logo.svg",
       "large": "img/logo.svg"

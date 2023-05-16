@@ -112,7 +112,8 @@ export const plugin = new PanelPlugin(ShiftSelector).setPanelOptions((builder) =
       path: 'autoSelectShiftGroup',
       showIf: (c: any) => c.isAutoSelectShift,
       name: 'Select group',
-      description: 'In case your panel contains multiple shift groups you can specify a certain group to cycle through in real-time mode. Scope to specific shift group (provide the group uuid). Once your group is set, the border outline of that group should be colored orange.',
+      description:
+        'In case your panel contains multiple shift groups you can specify a certain group to cycle through in real-time mode. Scope to specific shift group (provide the group uuid). Once your group is set, the border outline of that group should be colored orange.',
       defaultValue: '',
     })
     .addBooleanSwitch({
@@ -209,7 +210,8 @@ export const plugin = new PanelPlugin(ShiftSelector).setPanelOptions((builder) =
       category: ['Option Labels'],
       path: 'var_label_mapping',
       name: 'Shift labels',
-      description: 'Extend your labels with localized labels. These labels will be linked to your shifts. E.g. the sunny icon will be applied once the label contains "sabah" in Turkish or "spät" in case you have German labels for your shifts.',
+      description:
+        'Extend your labels with localized labels. These labels will be linked to your shifts. E.g. the sunny icon will be applied once the label contains "sabah" in Turkish or "spät" in case you have German labels for your shifts.',
       defaultValue: JSON.stringify(
         {
           sunny: ['sabah', 'spät'],

@@ -110,10 +110,10 @@ export type TStaticShift = {
 };
 
 export type TExtendedShift = ShiftI & {
-  startDate: moment.Moment
-  endDate: moment.Moment
-  _: any
-}
+  startDate: moment.Moment;
+  endDate: moment.Moment;
+  _: any;
+};
 
 export type ShiftData = {
   [key: string]: ShiftI[];
@@ -131,17 +131,17 @@ export enum vars {
 }
 
 export type TMappings = {
-  [key: string]: string[]
-}
+  [key: string]: string[];
+};
 
 export type TUpdateActiveShiftProps = {
-  setShiftParams: (shift: TExtendedShift, isManualUpdate?: any) => void
-  autoSelectShiftGroup: string
-  isAutoSelectShift: boolean
-  setProductionDate: React.Dispatch<number>
-  productionDate: number
+  setShiftParams: (shift: TExtendedShift, isManualUpdate?: any) => void;
+  autoSelectShiftGroup: string;
+  isAutoSelectShift: boolean;
+  setProductionDate: React.Dispatch<number>;
+  productionDate: number;
   shifts: {
-    options: any,
-    values: any
-  }
-}
+    options: any;
+    values: any;
+  };
+};

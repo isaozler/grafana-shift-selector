@@ -2,14 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 
 import sqlstring from 'sqlstring';
 
-import {
-  dateTimeAsMoment,
-  DataFrame,
-  LoadingState,
-  Vector,
-  TimeRange,
-  PanelProps,
-} from '@grafana/data';
+import { DataFrame, LoadingState, Vector, TimeRange, PanelProps } from '@grafana/data';
 import {
   getBackendSrv,
   getDataSourceSrv,
@@ -134,102 +127,98 @@ export const useShiftSelectorHook = (props: PanelProps) => {
 
     return refresh;
   }, [isAutoSelectShift, refreshInterval]);
-  const getQueryDate = useCallback(
-    (type: string) => {
-      const queryTime = new URLSearchParams(window.location.search).get(type);
-      const time = !queryTime || queryTime?.includes('now') ? timeRange.from : dateTimeAsMoment(+queryTime);
-      return time;
-    },
-    [timeRange.from]
-  );
-  const updateDateTime = useCallback(
-    (shift: ShiftI) => {
-      debugger
-      let { relativeFrom, relativeTo } = getRelativeDates();
-      let fromDate: any;
-      let toDate: any;
+  // const getQueryDate = useCallback(
+  //   (type: string) => {
+  //     const queryTime = new URLSearchParams(window.location.search).get(type);
+  //     const time = !queryTime || queryTime?.includes('now') ? timeRange.from : dateTimeAsMoment(+queryTime);
+  //     return time;
+  //   },
+  //   [timeRange.from]
+  // );
+  // const updateDateTime = useCallback(
+  //   (shift: ShiftI) => {
+  //     let { relativeFrom, relativeTo } = getRelativeDates();
+  //     let fromDate: any;
+  //     let toDate: any;
 
-      if (updateType === datePartsToSet.from) {
-        fromDate = dateTimeAsMoment(productionDate);
-        toDate = timeRange.to;
-      } else if (updateType === datePartsToSet.to) {
-        fromDate = timeRange.from;
-        toDate = dateTimeAsMoment(productionDate);
-      } else {
-        fromDate = dateTimeAsMoment(productionDate);
-        toDate = dateTimeAsMoment(productionDate);
-      }
+  //     if (updateType === datePartsToSet.from) {
+  //       fromDate = dateTimeAsMoment(productionDate);
+  //       toDate = timeRange.to;
+  //     } else if (updateType === datePartsToSet.to) {
+  //       fromDate = timeRange.from;
+  //       toDate = dateTimeAsMoment(productionDate);
+  //     } else {
+  //       fromDate = dateTimeAsMoment(productionDate);
+  //       toDate = dateTimeAsMoment(productionDate);
+  //     }
 
-      let tFrom: string;
-      let tTo: string;
-      let { start, end, order } = shift;
-      const [mObjStart, mObjEnd] = [dateTimeAsMoment(`2020-01-01 ${start}`), dateTimeAsMoment(`2020-01-01 ${end}`)];
-      const shiftDiffDay = mObjStart.unix() > mObjEnd.unix();
+  //     let tFrom: string;
+  //     let tTo: string;
+  //     let { start, end, order } = shift;
+  //     const [mObjStart, mObjEnd] = [dateTimeAsMoment(`2020-01-01 ${start}`), dateTimeAsMoment(`2020-01-01 ${end}`)];
+  //     const shiftDiffDay = mObjStart.unix() > mObjEnd.unix();
 
-      if (shiftDiffDay) {
-        if (order === 1 && (updateType === datePartsToSet.both || updateType === datePartsToSet.from)) {
-          fromDate.subtract(1, 'days');
-        } else if (updateType === datePartsToSet.both || updateType === datePartsToSet.to) {
-          toDate.add(1, 'days');
-        }
-      }
+  //     if (shiftDiffDay) {
+  //       if (order === 1 && (updateType === datePartsToSet.both || updateType === datePartsToSet.from)) {
+  //         fromDate.subtract(1, 'days');
+  //       } else if (updateType === datePartsToSet.both || updateType === datePartsToSet.to) {
+  //         toDate.add(1, 'days');
+  //       }
+  //     }
 
-      if (updateType === datePartsToSet.both) {
-        relativeFrom = false;
-        relativeTo = false;
-      } else if (updateType === datePartsToSet.from) {
-        if (!relativeTo) {
-          end = getQueryDate('to').format('HH:mm:ss');
-        }
-        relativeFrom = false;
-      } else if (updateType === datePartsToSet.to) {
-        if (!relativeFrom) {
-          start = getQueryDate('from').format('HH:mm:ss');
-        }
-        relativeTo = false;
-      }
+  //     if (updateType === datePartsToSet.both) {
+  //       relativeFrom = false;
+  //       relativeTo = false;
+  //     } else if (updateType === datePartsToSet.from) {
+  //       if (!relativeTo) {
+  //         end = getQueryDate('to').format('HH:mm:ss');
+  //       }
+  //       relativeFrom = false;
+  //     } else if (updateType === datePartsToSet.to) {
+  //       if (!relativeFrom) {
+  //         start = getQueryDate('from').format('HH:mm:ss');
+  //       }
+  //       relativeTo = false;
+  //     }
 
-      const fromString = fromDate.format('YYYY-MM-DD');
-      tFrom = `${fromString} ${start}`;
-      tTo = `${toDate.format('YYYY-MM-DD')} ${end}`;
-      const from: any = !relativeFrom
-        ? dateTimeAsMoment(tFrom).unix() * 1000
-        : new URLSearchParams(window.location.search).get('from');
-      const to: any = !relativeTo
-        ? dateTimeAsMoment(tTo).unix() * 1000
-        : new URLSearchParams(window.location.search).get('to');
-      const _checkFrom = dateTimeAsMoment(from);
-      const _checkTo = dateTimeAsMoment(to);
+  //     const fromString = fromDate.format('YYYY-MM-DD');
+  //     tFrom = `${fromString} ${start}`;
+  //     tTo = `${toDate.format('YYYY-MM-DD')} ${end}`;
+  //     const from: any = !relativeFrom
+  //       ? dateTimeAsMoment(tFrom).unix() * 1000
+  //       : new URLSearchParams(window.location.search).get('from');
+  //     const to: any = !relativeTo
+  //       ? dateTimeAsMoment(tTo).unix() * 1000
+  //       : new URLSearchParams(window.location.search).get('to');
+  //     const _checkFrom = dateTimeAsMoment(from);
+  //     const _checkTo = dateTimeAsMoment(to);
 
-      if (_checkFrom.unix() >= _checkTo.unix()) {
-        setAlertHandler({
-          id: 2,
-          type: 'brandDanger',
-          text: `Error! From (${_checkFrom.format('YYYY-MM-DD HH:mm')}) to (${_checkTo.format(
-            'YYYY-MM-DD HH:mm'
-          )}) is an invalid date-time range selection! Please try again.`,
-        });
-      } else if (alerts.find(({ id }) => id === 2)) {
-        resetAlert(2);
-      }
+  //     if (_checkFrom.unix() >= _checkTo.unix()) {
+  //       setAlertHandler({
+  //         id: 2,
+  //         type: 'brandDanger',
+  //         text: `Error! From (${_checkFrom.format('YYYY-MM-DD HH:mm')}) to (${_checkTo.format(
+  //           'YYYY-MM-DD HH:mm'
+  //         )}) is an invalid date-time range selection! Please try again.`,
+  //       });
+  //     } else if (alerts.find(({ id }) => id === 2)) {
+  //       resetAlert(2);
+  //     }
 
-      return {
-        from,
-        to,
-        diffSet: {},
-      };
-    },
-    [alerts, getQueryDate, productionDate, resetAlert, setAlertHandler, timeRange.from, timeRange.to, updateType]
-  );
+  //     return {
+  //       from,
+  //       to,
+  //       diffSet: {},
+  //     };
+  //   },
+  //   [alerts, getQueryDate, productionDate, resetAlert, setAlertHandler, timeRange.from, timeRange.to, updateType]
+  // );
   const setShiftParams = useCallback(
     (shift: TExtendedShift, isManualUpdate = false) => {
-      const {
-        startDate,
-        endDate,
-      } = shift || {};
+      const { startDate, endDate } = shift || {};
 
-      const from = startDate.unix() * 1000
-      const to = endDate.unix() * 1000
+      const from = startDate.unix() * 1000;
+      const to = endDate.unix() * 1000;
 
       if (isAutoSelectShift && isManualUpdate) {
         return setAlertHandler({
@@ -247,31 +236,33 @@ export const useShiftSelectorHook = (props: PanelProps) => {
         }));
       }
     },
-    [isAutoSelectShift, updateDateTime, setAlertHandler, setCustomTimeRange]
+    [isAutoSelectShift, setAlertHandler, setCustomTimeRange]
   );
   const setManualShiftParams = useCallback(
     (shift: TExtendedShift, productionDate: number) => {
-      const {
-        startDate,
-        endDate,
-      } = transformShiftData(shift as unknown as ShiftI & { index: number }, startHourIsGreater(shift.start, shift.end), productionDate) || {};
+      const { startDate, endDate } =
+        transformShiftData(
+          (shift as unknown) as ShiftI & { index: number },
+          startHourIsGreater(shift.start, shift.end),
+          productionDate
+        ) || {};
 
       let updateTimeRange = {
         from: startDate.unix() * 1000,
         to: endDate.unix() * 1000,
-      }
+      };
       let params: { uuid?: string } = {
         uuid: shift.uuid,
-      }
+      };
 
       if (updateType === 'from') {
-        const searchTo = new URLSearchParams(window.location.search).get('to')
-        updateTimeRange.to = searchTo ? +searchTo : updateTimeRange.to
-        params = {}
+        const searchTo = new URLSearchParams(window.location.search).get('to');
+        updateTimeRange.to = searchTo ? +searchTo : updateTimeRange.to;
+        params = {};
       } else if (updateType === 'to') {
-        const searchFrom = new URLSearchParams(window.location.search).get('from')
-        updateTimeRange.from = searchFrom ? +searchFrom : updateTimeRange.from
-        params = {}
+        const searchFrom = new URLSearchParams(window.location.search).get('from');
+        updateTimeRange.from = searchFrom ? +searchFrom : updateTimeRange.from;
+        params = {};
       }
 
       if (updateTimeRange.from && updateTimeRange.to) {
@@ -281,7 +272,7 @@ export const useShiftSelectorHook = (props: PanelProps) => {
         }));
       }
     },
-    [isAutoSelectShift, updateDateTime, setAlertHandler, setCustomTimeRange, productionDate, updateType]
+    [setCustomTimeRange, updateType]
   );
   const getValues = useCallback(async () => {
     try {
@@ -418,7 +409,6 @@ ORDER by ??, ??
     }
   }, [siteUUID, sqlConfig, isStatic, resetAlert, setAlertHandler, setShiftValues, processShifts, templateSrv]);
 
-
   useEffect(() => {
     const dateRange = {
       from: timeRange.from.format(dateTimeFormat),
@@ -444,7 +434,7 @@ ORDER by ??, ??
         query,
       });
     }
-  }, [dateTimeFormat, locationSrv, customTimeRange, timeRange.to, timeRange.from, getRefreshRate, setInitDateRange]);
+  }, [locationSrv, customTimeRange, timeRange.to, timeRange.from, getRefreshRate, setInitDateRange]);
 
   useEffect(() => {
     if (width < 400) {
@@ -548,15 +538,15 @@ ORDER by ??, ??
           },
           setProductionDate,
           productionDate,
-        })
+        });
       }
-
     });
 
     return () => {
       subscriber.unsubscribe();
     };
   }, [
+    productionDate,
     eventBus,
     setShiftParams,
     autoSelectShiftGroup,
@@ -669,7 +659,6 @@ ORDER by ??, ??
     templateSrv,
     sqlConfig,
     siteUUID,
-    dateTimeFormat,
     dateRange,
   ]);
 
@@ -690,5 +679,5 @@ ORDER by ??, ??
 
     productionDate,
     setProductionDate,
-  }
-}
+  };
+};

@@ -21,6 +21,9 @@ With this new feature, you can enable the shift selector to track shifts automat
 
 # New panel options
 
+- Data Mapper replaces the variables `var_query_map`
+- Simple quick start flow (without need the need of variables)
+- Icon mapper added to match the icons
 - Customize day selection label. Useful if you like to localize or specify a different label.
 - Display options for the shift buttons.
   - With this new option you are able to show the buttons in;
@@ -31,9 +34,12 @@ With this new feature, you can enable the shift selector to track shifts automat
 
 # Quick Start (static shifts)
 
-With this plugin you are able to choose between dynamic (from a `datasource`) and static (from `var_query_map.static.shifts` variables).
+With this plugin you are able to choose between dynamic (from a `datasource`) and static.
 
-To set shifts (groups), set the value of the `var_query_map` variable to:
+To start quickly, set shifts (groups) in the `Data Mapper` panel:
+
+- Set `Shifts from a data source to false`
+- Copy-paste the json shown below as an example
 
 ```json
 {

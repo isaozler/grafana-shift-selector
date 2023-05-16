@@ -10,5 +10,5 @@
 
 .panel-content {
   /* Contain needs to be unset in order to use the production date selector */
-  contain: unset !important; 
+  contain: unset !important;
 }
