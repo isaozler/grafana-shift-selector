@@ -1,11 +1,11 @@
-import * as React from 'react';
+import React from 'react';
 
 import './styles/core.css';
 import 'react-datepicker/dist/react-datepicker.min.css';
 
 import { PanelProps } from '@grafana/data';
 import { TPropOptions } from './types';
-import { getShifts, setTypeChangeHandler, shiftSelectHandler } from './utils';
+import { setTypeChangeHandler, shiftSelectHandler } from './utils';
 import { ShiftSelectorWrapper, Alerts, ShiftSelectorContainer } from './styles/components';
 import { ShiftOptions } from './components/options';
 import { InputWrappers } from './components/inputWrappers';
@@ -38,19 +38,14 @@ const ShiftSelector: React.FC<PanelProps<{}>> = (props) => {
     setClosedAlerts,
     setCustomTimeRange,
     setUpdateType,
-    setShiftParams,
+    setManualShiftParams,
 
     productionDate,
+    setProductionDate,
   } = useShiftSelectorHook(props);
-
-  if (shiftOptions?.options) {
-    console.log('SHIFTS', getShifts(shiftOptions?.options, shiftValues, productionDate));
-  }
 
   return (
     <ShiftSelectorWrapper>
-      {JSON.stringify(timeRange)}
-      {new Date().getTime()}
       {alerts.map(({ text, type, id }: { id: number; text: string; type: string }) => {
         return (
           <Alerts key={`alerts-${id}`} type={type as any}>
@@ -87,6 +82,8 @@ const ShiftSelector: React.FC<PanelProps<{}>> = (props) => {
               setTypeChangeHandler={setTypeChangeHandler}
               setCustomTimeRange={setCustomTimeRange}
               setUpdateType={setUpdateType}
+              productionDate={productionDate}
+              setProductionDate={setProductionDate}
             />
           ) : (
             <></>
@@ -98,7 +95,7 @@ const ShiftSelector: React.FC<PanelProps<{}>> = (props) => {
               viewType={_viewType}
               isShowTimeLabel={isShowTimeLabel}
               optionViewType={shiftOptionsLabelType}
-              setShiftParams={setShiftParams}
+              setShiftParams={setManualShiftParams}
               shiftSelectHandler={shiftSelectHandler}
               isAutoSelectShift={isAutoSelectShift}
               autoSelectShiftGroup={autoSelectShiftGroup}

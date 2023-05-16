@@ -32,7 +32,7 @@ import {
   TStaticShift,
   vars,
 } from '../types';
-import { dateTimeFormat, getRelativeDates, updateActiveShift } from '../utils';
+import { dateTimeFormat, getRelativeDates, startHourIsGreater, transformShiftData, updateActiveShift } from '../utils';
 
 export const useShiftSelectorHook = (props: PanelProps) => {
   const { data: _data, width, height, timeRange, eventBus } = props;
@@ -223,7 +223,6 @@ export const useShiftSelectorHook = (props: PanelProps) => {
   );
   const setShiftParams = useCallback(
     (shift: TExtendedShift, isManualUpdate = false) => {
-      // const { from, to } = updateDateTime(shift) || {};
       const {
         startDate,
         endDate,
@@ -249,6 +248,26 @@ export const useShiftSelectorHook = (props: PanelProps) => {
       }
     },
     [isAutoSelectShift, updateDateTime, setAlertHandler, setCustomTimeRange]
+  );
+  const setManualShiftParams = useCallback(
+    (shift: TExtendedShift, productionDate: number) => {
+      const {
+        startDate,
+        endDate,
+      } = transformShiftData(shift as unknown as ShiftI & { index: number }, startHourIsGreater(shift.start, shift.end), productionDate) || {};
+
+      const from = startDate.unix() * 1000
+      const to = endDate.unix() * 1000
+
+      if (from && to) {
+        setCustomTimeRange(() => ({
+          from,
+          to,
+          uuid: shift.uuid,
+        }));
+      }
+    },
+    [isAutoSelectShift, updateDateTime, setAlertHandler, setCustomTimeRange, productionDate]
   );
   const getValues = useCallback(async () => {
     try {
@@ -502,9 +521,6 @@ ORDER by ??, ??
 
   useEffect(() => {
     const subscriber = eventBus.getStream(RefreshEvent).subscribe((event) => {
-      // const prodDate = dateTimeAsMoment('2022-01-01');
-      // setProductionDate(() => prodDate.unix() * 1000);
-
       const isRealtimeActive = !!(isAutoSelectShift && autoSelectShiftGroup);
 
       if (isRealtimeActive) {
@@ -656,7 +672,9 @@ ORDER by ??, ??
     setCustomTimeRange,
     setUpdateType,
     setShiftParams,
+    setManualShiftParams,
 
     productionDate,
+    setProductionDate,
   }
 }

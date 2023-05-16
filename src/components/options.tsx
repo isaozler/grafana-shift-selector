@@ -107,7 +107,7 @@ export const ShiftOptions = ({
                           ? `mdi mdi-weather-${buttonTypes(label, allMappings)}`
                           : ''
                       }`}
-                      onClick={() => shiftSelectHandler(item, setShiftParams, isAutoSelectShift)}
+                      onClick={() => shiftSelectHandler(item, setShiftParams, productionDate)}
                       isRealtime={isRealtimeActive}
                     >
                       {label} {isShowTimeLabel ? <>({timeLabel})</> : <></>}

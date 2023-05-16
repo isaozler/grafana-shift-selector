@@ -31,18 +31,18 @@ export const parseShiftData = (uuid: string, values: any[]): TParsedShiftData | 
 };
 
 export const transformShiftData = (shift: ShiftI & { index: number }, hasNextDayShift: boolean, productionDate: number): ShiftI & TExtendedShift => {
-  const currentHour = dateTimeAsMoment().get('hour')
-  let startDate = dateTimeAsMoment(`${dateTime().format('YYYY-MM-DD')} ${shift.start}`)
-  let endDate = dateTimeAsMoment(`${dateTime().format('YYYY-MM-DD')} ${shift.end}`)
+  const currentHour = dateTimeAsMoment(productionDate).get('hour')
+  let startDate = dateTimeAsMoment(`${dateTime(productionDate).format('YYYY-MM-DD')} ${shift.start}`)
+  let endDate = dateTimeAsMoment(`${dateTime(productionDate).format('YYYY-MM-DD')} ${shift.end}`)
   const isStartHourGreater = startHourIsGreater(shift.start, shift.end)
   const isActive = isCurrentTimeInShiftRange(shift)
   const endHour = endDate.get('hour')
 
   if (hasNextDayShift && isStartHourGreater) {
     if (currentHour <= 23 && currentHour > endHour) {
-      endDate = dateTimeAsMoment(`${dateTime().format('YYYY-MM-DD')} ${shift.end}`).add(1, 'day')
+      endDate = dateTimeAsMoment(`${dateTime(productionDate).format('YYYY-MM-DD')} ${shift.end}`).add(1, 'day')
     } else {
-      startDate = dateTimeAsMoment(`${dateTime().format('YYYY-MM-DD')} ${shift.start}`).subtract(1, 'day')
+      startDate = dateTimeAsMoment(`${dateTime(productionDate).format('YYYY-MM-DD')} ${shift.start}`).subtract(1, 'day')
     }
   }
 
@@ -168,9 +168,9 @@ export const setTypeChangeHandler = (
 
 export const shiftSelectHandler = (
   shift: ShiftI,
-  setShiftParams: (shift: ShiftI, isManualUpdate?: boolean) => void,
-  isAutoSelectShift: boolean
-) => setShiftParams(shift, isAutoSelectShift);
+  setShiftParams: (shift: ShiftI, productionDate: number) => void,
+  productionDate: number
+) => setShiftParams(shift, productionDate);
 
 export function getRelativeDates() {
   const relativeFrom = new URLSearchParams(window.location.search).get('from')?.includes('now');

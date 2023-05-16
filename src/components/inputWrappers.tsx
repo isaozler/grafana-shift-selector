@@ -26,6 +26,8 @@ type TPropInputWrapperOptions = Omit<
   setTypeChangeHandler: typeof setTypeChangeHandler;
   setUpdateType: React.Dispatch<React.SetStateAction<string>>;
   setCustomTimeRange: React.Dispatch<any>;
+  productionDate: number;
+  setProductionDate: React.Dispatch<React.SetStateAction<number>>;
 };
 
 export const InputWrappers = (props: TPropInputWrapperOptions) => {
@@ -36,16 +38,16 @@ export const InputWrappers = (props: TPropInputWrapperOptions) => {
     rangeOptionLabelStartEnd,
     rangeOptionLabelStart,
     rangeOptionLabelEnd,
-    timeRange,
     updateType,
     setCustomTimeRange,
     setTypeChangeHandler,
     setUpdateType,
+    productionDate,
+    setProductionDate,
   } = props;
 
   const dateFormat = 'yyyy-MM-dd';
   const [_viewType] = useState<string>('default');
-  const [productionDate, setProductionDate] = useState<any>(timeRange.from.unix() * 1000);
 
   const btnStartEndIsActive = updateType === datePartsToSet.both;
   const btnStartIsActive = updateType === datePartsToSet.from;
@@ -57,7 +59,7 @@ export const InputWrappers = (props: TPropInputWrapperOptions) => {
         {isShowDayLabel ? <span>{dayLabel || 'Select day'}</span> : <></>}
         <DatePicker
           className="production-day-selector"
-          selected={productionDate}
+          selected={new Date(productionDate)}
           onChange={(date: Date) => setProductionDate(+date)}
           dateFormat={dateFormat}
         />
