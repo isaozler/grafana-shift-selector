@@ -256,18 +256,32 @@ export const useShiftSelectorHook = (props: PanelProps) => {
         endDate,
       } = transformShiftData(shift as unknown as ShiftI & { index: number }, startHourIsGreater(shift.start, shift.end), productionDate) || {};
 
-      const from = startDate.unix() * 1000
-      const to = endDate.unix() * 1000
+      let updateTimeRange = {
+        from: startDate.unix() * 1000,
+        to: endDate.unix() * 1000,
+      }
+      let params: { uuid?: string } = {
+        uuid: shift.uuid,
+      }
 
-      if (from && to) {
+      if (updateType === 'from') {
+        const searchTo = new URLSearchParams(window.location.search).get('to')
+        updateTimeRange.to = searchTo ? +searchTo : updateTimeRange.to
+        params = {}
+      } else if (updateType === 'to') {
+        const searchFrom = new URLSearchParams(window.location.search).get('from')
+        updateTimeRange.from = searchFrom ? +searchFrom : updateTimeRange.from
+        params = {}
+      }
+
+      if (updateTimeRange.from && updateTimeRange.to) {
         setCustomTimeRange(() => ({
-          from,
-          to,
-          uuid: shift.uuid,
+          ...updateTimeRange,
+          ...params,
         }));
       }
     },
-    [isAutoSelectShift, updateDateTime, setAlertHandler, setCustomTimeRange, productionDate]
+    [isAutoSelectShift, updateDateTime, setAlertHandler, setCustomTimeRange, productionDate, updateType]
   );
   const getValues = useCallback(async () => {
     try {
