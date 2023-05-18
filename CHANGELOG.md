@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.1
+
+- Fixed review bugs
+  - Grafana css classes removed
+  - Multiple shift-selector-panels blocked in dashboard mode, to prevent infinite loops
+- Added extra options
+  - Ability to hide date range buttons
+- UI bug fixes
+  - Icon overlapping labels
+  - Production date height shift
+
 ## 0.1.0
 
 - Realtime bugs fixed

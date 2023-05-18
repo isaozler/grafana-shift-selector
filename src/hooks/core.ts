@@ -27,7 +27,7 @@ import {
 } from '../types';
 import { dateTimeFormat, getRelativeDates, startHourIsGreater, transformShiftData, updateActiveShift } from '../utils';
 
-export const useShiftSelectorHook = (props: PanelProps) => {
+export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
   const { data: _data, width, height, timeRange, eventBus } = props;
   const {
     isAutoSelectShift,
@@ -36,7 +36,8 @@ export const useShiftSelectorHook = (props: PanelProps) => {
     isDataSourceShifts,
     var_query_map_dynamic,
     var_query_map_static,
-  } = props.options as TPropOptions;
+    shiftSelectorPluginPanel,
+  } = props.options;
 
   const locationSrv = getLocationSrv();
   const templateSrv = getTemplateSrv() as TemplateSrv & { timeRange: TimeRange };
@@ -127,92 +128,6 @@ export const useShiftSelectorHook = (props: PanelProps) => {
 
     return refresh;
   }, [isAutoSelectShift, refreshInterval]);
-  // const getQueryDate = useCallback(
-  //   (type: string) => {
-  //     const queryTime = new URLSearchParams(window.location.search).get(type);
-  //     const time = !queryTime || queryTime?.includes('now') ? timeRange.from : dateTimeAsMoment(+queryTime);
-  //     return time;
-  //   },
-  //   [timeRange.from]
-  // );
-  // const updateDateTime = useCallback(
-  //   (shift: ShiftI) => {
-  //     let { relativeFrom, relativeTo } = getRelativeDates();
-  //     let fromDate: any;
-  //     let toDate: any;
-
-  //     if (updateType === datePartsToSet.from) {
-  //       fromDate = dateTimeAsMoment(productionDate);
-  //       toDate = timeRange.to;
-  //     } else if (updateType === datePartsToSet.to) {
-  //       fromDate = timeRange.from;
-  //       toDate = dateTimeAsMoment(productionDate);
-  //     } else {
-  //       fromDate = dateTimeAsMoment(productionDate);
-  //       toDate = dateTimeAsMoment(productionDate);
-  //     }
-
-  //     let tFrom: string;
-  //     let tTo: string;
-  //     let { start, end, order } = shift;
-  //     const [mObjStart, mObjEnd] = [dateTimeAsMoment(`2020-01-01 ${start}`), dateTimeAsMoment(`2020-01-01 ${end}`)];
-  //     const shiftDiffDay = mObjStart.unix() > mObjEnd.unix();
-
-  //     if (shiftDiffDay) {
-  //       if (order === 1 && (updateType === datePartsToSet.both || updateType === datePartsToSet.from)) {
-  //         fromDate.subtract(1, 'days');
-  //       } else if (updateType === datePartsToSet.both || updateType === datePartsToSet.to) {
-  //         toDate.add(1, 'days');
-  //       }
-  //     }
-
-  //     if (updateType === datePartsToSet.both) {
-  //       relativeFrom = false;
-  //       relativeTo = false;
-  //     } else if (updateType === datePartsToSet.from) {
-  //       if (!relativeTo) {
-  //         end = getQueryDate('to').format('HH:mm:ss');
-  //       }
-  //       relativeFrom = false;
-  //     } else if (updateType === datePartsToSet.to) {
-  //       if (!relativeFrom) {
-  //         start = getQueryDate('from').format('HH:mm:ss');
-  //       }
-  //       relativeTo = false;
-  //     }
-
-  //     const fromString = fromDate.format('YYYY-MM-DD');
-  //     tFrom = `${fromString} ${start}`;
-  //     tTo = `${toDate.format('YYYY-MM-DD')} ${end}`;
-  //     const from: any = !relativeFrom
-  //       ? dateTimeAsMoment(tFrom).unix() * 1000
-  //       : new URLSearchParams(window.location.search).get('from');
-  //     const to: any = !relativeTo
-  //       ? dateTimeAsMoment(tTo).unix() * 1000
-  //       : new URLSearchParams(window.location.search).get('to');
-  //     const _checkFrom = dateTimeAsMoment(from);
-  //     const _checkTo = dateTimeAsMoment(to);
-
-  //     if (_checkFrom.unix() >= _checkTo.unix()) {
-  //       setAlertHandler({
-  //         id: 2,
-  //         type: 'brandDanger',
-  //         text: `Error! From (${_checkFrom.format('YYYY-MM-DD HH:mm')}) to (${_checkTo.format(
-  //           'YYYY-MM-DD HH:mm'
-  //         )}) is an invalid date-time range selection! Please try again.`,
-  //       });
-  //     } else if (alerts.find(({ id }) => id === 2)) {
-  //       resetAlert(2);
-  //     }
-
-  //     return {
-  //       from,
-  //       to,
-  //       diffSet: {},
-  //     };
-  //   },
-  //   [alerts, getQueryDate, productionDate, resetAlert, setAlertHandler, timeRange.from, timeRange.to, updateType]
-  // );
   const setShiftParams = useCallback(
     (shift: TExtendedShift, isManualUpdate = false) => {
       const { startDate, endDate } = shift || {};
@@ -525,6 +440,7 @@ ORDER by ??, ??
 
   useEffect(() => {
     const subscriber = eventBus.getStream(RefreshEvent).subscribe((event) => {
+      console.log('STREAM', shiftSelectorPluginPanel, event)
       const isRealtimeActive = !!(isAutoSelectShift && autoSelectShiftGroup);
 
       if (isRealtimeActive) {
@@ -555,6 +471,7 @@ ORDER by ??, ??
     shiftValues,
     props.timeRange.from,
     props.timeRange.to,
+    shiftSelectorPluginPanel,
   ]);
 
   useEffect(() => {
@@ -623,7 +540,7 @@ ORDER by ??, ??
         }
       }
 
-      if (!!sqlConfig?.static?.shifts.length) {
+      if (sqlConfig?.static?.shifts.length) {
         setShiftOptions(() => processStaticOptions(sqlConfig.static?.shifts));
       } else {
         setShiftOptions(() => templateSrv.getVariables().find(({ name }) => name === vars.queryShiftsOptions) || null);
@@ -671,6 +588,7 @@ ORDER by ??, ??
     _viewType,
     updateType,
 
+    setAlerts,
     setClosedAlerts,
     setCustomTimeRange,
     setUpdateType,

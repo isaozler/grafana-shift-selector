@@ -119,9 +119,25 @@ export const plugin = new PanelPlugin(ShiftSelector).setPanelOptions((builder) =
     .addBooleanSwitch({
       showIf: (c: any) => !c.isAutoSelectShift,
       category: ['Range Labels'],
+      path: 'isShowProductionDateSelector',
+      name: 'Show production date selector',
+      description: 'Show or hide the date-picker to select the production day.',
+      defaultValue: true,
+    })
+    .addBooleanSwitch({
+      showIf: (c: any) => !c.isAutoSelectShift && c.isShowProductionDateSelector,
+      category: ['Range Labels'],
       path: 'isShowDayLabel',
       name: 'Show select day label',
       description: 'This gives you the ability to show or hide the day selection label',
+      defaultValue: true,
+    })
+    .addBooleanSwitch({
+      showIf: (c: any) => !c.isAutoSelectShift && c.isShowProductionDateSelector,
+      category: ['Range Labels'],
+      path: 'isShowRangeButtons',
+      name: 'Show alternative range button',
+      description: 'Ability to show or hide the range buttons. This could be useful in case you want to minimize the space taken.',
       defaultValue: true,
     })
     .addTextInput({

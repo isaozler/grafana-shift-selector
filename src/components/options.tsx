@@ -1,7 +1,14 @@
 import React from 'react';
 
 import { config } from '@grafana/runtime';
-import { ShiftOptionsWrapper, ShiftsWrapper, ShiftLabel, ShiftButtonsWrapper, ShiftButton } from '../styles/components';
+import {
+  ShiftOptionsWrapper,
+  ShiftsWrapper,
+  ShiftLabel,
+  ShiftButtonsWrapper,
+  ShiftButton,
+  ShiftLabelSpan,
+} from '../styles/components';
 import {
   EViewType,
   Option,
@@ -79,7 +86,7 @@ export const ShiftOptions = ({
             isRealtime={isRealtimeActive}
           >
             {Object.keys(shifts).length > 1 && (
-              <ShiftLabel>{shifts[key][0] ? shifts[key][0].shiftGroupName : key}</ShiftLabel>
+              <ShiftLabel viewType={viewType}>{shifts[key][0] ? shifts[key][0].shiftGroupName : key}</ShiftLabel>
             )}
             <ShiftButtonsWrapper>
               {shifts[key]
@@ -110,7 +117,9 @@ export const ShiftOptions = ({
                       onClick={() => shiftSelectHandler(item, setShiftParams, productionDate)}
                       isRealtime={isRealtimeActive}
                     >
-                      {label} {isShowTimeLabel ? <>({timeLabel})</> : <></>}
+                      <ShiftLabelSpan>
+                        {label} {isShowTimeLabel ? <>({timeLabel})</> : <></>}
+                      </ShiftLabelSpan>
                     </ShiftButton>
                   );
                 })}

@@ -20,6 +20,7 @@ type TPropInputWrapperOptions = Omit<
   | 'var_query_map_dynamic'
   | 'var_query_map_static'
   | 'var_label_mapping'
+  | 'shiftSelectorPluginPanel'
 > & {
   timeRange: TimeRange;
   updateType: string;
@@ -44,6 +45,8 @@ export const InputWrappers = (props: TPropInputWrapperOptions) => {
     setUpdateType,
     productionDate,
     setProductionDate,
+    isShowRangeButtons,
+    isShowProductionDateSelector,
   } = props;
 
   const dateFormat = 'yyyy-MM-dd';
@@ -52,6 +55,10 @@ export const InputWrappers = (props: TPropInputWrapperOptions) => {
   const btnStartEndIsActive = updateType === datePartsToSet.both;
   const btnStartIsActive = updateType === datePartsToSet.from;
   const btnEndIsActive = updateType === datePartsToSet.to;
+
+  if (!isShowProductionDateSelector) {
+    return <></>;
+  }
 
   return (
     <SelectorInputs>
@@ -63,33 +70,39 @@ export const InputWrappers = (props: TPropInputWrapperOptions) => {
           onChange={(date: Date) => setProductionDate(+date)}
           dateFormat={dateFormat}
         />
-        <RangeButton
-          viewType={rangeLabelType}
-          buttonType="start-end"
-          title="Set shift times both from and to times"
-          label={rangeOptionLabelStartEnd}
-          icon="mdi-ray-start-end"
-          onClick={() => setTypeChangeHandler(datePartsToSet.both, updateType, setUpdateType, setCustomTimeRange)}
-          isActive={btnStartEndIsActive}
-        />
-        <RangeButton
-          viewType={rangeLabelType}
-          buttonType="start"
-          title="Set shift start time"
-          label={rangeOptionLabelStart}
-          icon="mdi-ray-start"
-          onClick={() => setTypeChangeHandler(datePartsToSet.from, updateType, setUpdateType, setCustomTimeRange)}
-          isActive={btnStartIsActive}
-        />
-        <RangeButton
-          viewType={rangeLabelType}
-          buttonType="end"
-          title="Set shift end time"
-          label={rangeOptionLabelEnd}
-          icon="mdi-ray-end"
-          onClick={() => setTypeChangeHandler(datePartsToSet.to, updateType, setUpdateType, setCustomTimeRange)}
-          isActive={btnEndIsActive}
-        />
+        {isShowRangeButtons ? (
+          <>
+            <RangeButton
+              viewType={rangeLabelType}
+              buttonType="start-end"
+              title="Set shift times both from and to times"
+              label={rangeOptionLabelStartEnd}
+              icon="mdi-ray-start-end"
+              onClick={() => setTypeChangeHandler(datePartsToSet.both, updateType, setUpdateType, setCustomTimeRange)}
+              isActive={btnStartEndIsActive}
+            />
+            <RangeButton
+              viewType={rangeLabelType}
+              buttonType="start"
+              title="Set shift start time"
+              label={rangeOptionLabelStart}
+              icon="mdi-ray-start"
+              onClick={() => setTypeChangeHandler(datePartsToSet.from, updateType, setUpdateType, setCustomTimeRange)}
+              isActive={btnStartIsActive}
+            />
+            <RangeButton
+              viewType={rangeLabelType}
+              buttonType="end"
+              title="Set shift end time"
+              label={rangeOptionLabelEnd}
+              icon="mdi-ray-end"
+              onClick={() => setTypeChangeHandler(datePartsToSet.to, updateType, setUpdateType, setCustomTimeRange)}
+              isActive={btnEndIsActive}
+            />
+          </>
+        ) : (
+          <></>
+        )}
       </ProductionDay>
     </SelectorInputs>
   );

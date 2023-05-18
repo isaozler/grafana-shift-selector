@@ -124,6 +124,16 @@ export const ShiftLabel = styled('span', {
   fontWeight: 'bold',
   marginBottom: ' 4px',
   marginLeft: ' 4px',
+  variants: {
+    viewType: {
+      column: {
+        maxWidth: '100%',
+      },
+      row: {
+        maxWidth: '130px',
+      }
+    },
+  }
 });
 
 export const ShiftButtonsWrapper = styled('div', {
@@ -141,6 +151,7 @@ export const ShiftButton = styled('button', {
   flexShrink: 1,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
   paddingLeft: '40px',
   marginBottom: '4px',
   borderRadius: '0px',
@@ -150,8 +161,8 @@ export const ShiftButton = styled('button', {
   "&[class*='mdi-']::before": {
     marginRight: '5px',
     fontSize: '24px',
-    position: 'absolute',
-    left: '10px',
+    // position: 'absolute',
+    // left: '10px',
   },
 
   '&-invaliddata pre': {
@@ -202,6 +213,12 @@ export const ShiftButton = styled('button', {
     },
   },
 });
+
+export const ShiftLabelSpan = styled('span', {
+  display: 'block',
+  maxWidth: '100%',
+  overflow: 'hidden',
+})
 
 export const SelectorInputs = styled('div', {
   flexDirection: 'column',
@@ -313,5 +330,6 @@ export const Alerts = styled('div', {
     padding: 0,
     margin: 0,
     fontWeight: 'bold',
+    marginLeft: 16,
   },
 });

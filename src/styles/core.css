@@ -6,9 +6,27 @@
   flex-shrink: 1;
   min-width: unset !important;
   width: auto;
+  height: 30px;
 }
 
-.panel-content {
-  /* Contain needs to be unset in order to use the production date selector */
+.react-datepicker__navigation-icon--previous::before {
+  width: 14px !important;
+  aspect-ratio: 1/1;
+  border-color: black !important;
+  top: 14px !important;
+}
+
+.react-datepicker__navigation-icon--next::before {
+  width: 14px !important;
+  aspect-ratio: 1/1;
+  border-color: black !important;
+  top: 14px !important;
+}
+
+.show-panel-datepicker {
   contain: unset !important;
+}
+
+.production-day-selector {
+  height: 30px;
 }

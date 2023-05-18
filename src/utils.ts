@@ -204,85 +204,8 @@ export const updateActiveShift = (props: TUpdateActiveShiftProps) => {
       : shifts[initGroup];
 
   const activeShift = ((activeShifts as unknown) as TExtendedShift[]).find(({ _ }) => _.isActive);
-  console.log('SHIFTS', activeShift);
-  console.log('isRealtimeActive', isRealtimeActive);
 
   if (activeShift) {
     props.setShiftParams(activeShift, false);
   }
-
-  // activeShifts
-  //   .filter((shift: ShiftI) => {
-  //     if (!isAutoSelectShift || !autoSelectShiftGroup) {
-  //       return shift;
-  //     }
-
-  //     if (autoSelectShiftGroup === shift.shiftGroupUUID) {
-  //       return shift;
-  //     }
-
-  //     return false;
-  //   })
-  //   .sort((a: any, b: any) => a?.order - b?.order)
-  //   .forEach((item: ShiftI) => {
-  //     if (!isRealtimeActive) {
-  //       return item;
-  //     }
-
-  //     const { uuid, start: _start, end: _end } = item || {};
-  //     const [sh] = _start.split(':');
-  //     const [eh] = _end.split(':');
-  //     const isActive =
-  //       new URLSearchParams(window.location.search).get(vars.queryShiftsOptions) === uuid ||
-  //       new URLSearchParams(window.location.search).get(vars.queryShiftsOptions) === 'All';
-  //     const isSetFromTo =
-  //       new URLSearchParams(window.location.search).get('from') &&
-  //         new URLSearchParams(window.location.search).get('to')
-  //         ? true
-  //         : false;
-
-  //     const localTime = dateTime();
-
-  //     let startDate = localTime.format('YYYY-MM-DD');
-  //     let startShiftTime = dateTime(_start, 'HH:mm').unix();
-  //     let endDate = dateTime().format('YYYY-MM-DD');
-  //     let endShiftTime = dateTime(_end, 'HH:mm').unix();
-  //     const currentHour = +dateTime().format('H');
-  //     let prodDate = dateTimeAsMoment();
-  //     const fromDayNumber = props.timeRange.from.format('D');
-  //     const toDayNumber = props.timeRange.to.format('D');
-  //     const startHourNumber = parseInt(sh, 10);
-  //     const endHourNumber = parseInt(eh, 10);
-
-  //     if (startHourNumber > endHourNumber) {
-  //       if (currentHour < startHourNumber) {
-  //         startDate = dateTime().subtract(1, 'days').format('YYYY-MM-DD');
-  //         startShiftTime = dateTime(`${startDate} ${_start}`, 'YYYY-MM-DD HH:mm').unix();
-  //       } else {
-  //         endDate = dateTime().add(1, 'days').format('YYYY-MM-DD');
-  //         prodDate = dateTimeAsMoment().add(1, 'days');
-  //         endShiftTime = dateTime(`${endDate} ${_end}`, 'YYYY-MM-DD HH:mm').unix();
-  //       }
-
-  //       setProductionDate(() => prodDate.unix() * 1000);
-  //     } else {
-  //       if (currentHour < startHourNumber && fromDayNumber !== toDayNumber) {
-  //         const urlStartDate = new URLSearchParams(window.location.search).get('to') || 0;
-  //         const newStartDateTime = dateTime(+urlStartDate).format('YYYY-MM-DD');
-  //         startShiftTime = dateTime(`${newStartDateTime} ${_start}`, 'YYYY-MM-DD HH:mm').unix();
-  //         // console.log('>>>>>>>> startShiftTime', urlStartDate, `${newStartDateTime} ${_start}`);
-
-  //         setInitDateRange(() => ({
-  //           from: startShiftTime,
-  //           to: endShiftTime,
-  //         }));
-  //       }
-  //     }
-
-  //     if (dateTime().unix() > startShiftTime && dateTime().unix() < endShiftTime && (!isActive || !isSetFromTo)) {
-  //       setShiftParams(item, false);
-  //     }
-
-  //     return item;
-  //   });
 };

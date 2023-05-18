@@ -35,6 +35,9 @@ export type TPropOptions = {
   var_query_map_dynamic: string;
   var_query_map_static: string;
   var_label_mapping: string;
+  shiftSelectorPluginPanel: NodeListOf<HTMLDivElement>;
+  isShowRangeButtons: boolean;
+  isShowProductionDateSelector: boolean;
 };
 
 export type datePartOptions = 'both' | 'from' | 'to';

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import './styles/core.css';
 import 'react-datepicker/dist/react-datepicker.min.css';
@@ -6,12 +6,15 @@ import 'react-datepicker/dist/react-datepicker.min.css';
 import { PanelProps } from '@grafana/data';
 import { TPropOptions } from './types';
 import { setTypeChangeHandler, shiftSelectHandler } from './utils';
-import { ShiftSelectorWrapper, Alerts, ShiftSelectorContainer } from './styles/components';
+import { ShiftSelectorWrapper, ShiftSelectorContainer } from './styles/components';
 import { ShiftOptions } from './components/options';
 import { InputWrappers } from './components/inputWrappers';
+import { Alerts } from './components/alerts';
 import { useShiftSelectorHook } from './hooks/core';
 
-const ShiftSelector: React.FC<PanelProps<{}>> = (props) => {
+const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
+  const [isBlockedRender, setIsBlockedRender] = useState(false);
+  const [shiftSelectorPluginPanel, setShiftSelectorPluginPanel] = useState<NodeListOf<HTMLDivElement> | null>(null);
   const { data: _data, width, height, timeRange } = props;
   const {
     isShowDayLabel,
@@ -25,7 +28,9 @@ const ShiftSelector: React.FC<PanelProps<{}>> = (props) => {
     rangeOptionLabelStart,
     rangeOptionLabelEnd,
     var_label_mapping,
-  } = props.options as TPropOptions;
+    isShowRangeButtons,
+    isShowProductionDateSelector,
+  } = props.options;
   const {
     resetAlert,
 
@@ -35,6 +40,7 @@ const ShiftSelector: React.FC<PanelProps<{}>> = (props) => {
     _viewType,
     updateType,
 
+    setAlerts,
     setClosedAlerts,
     setCustomTimeRange,
     setUpdateType,
@@ -42,25 +48,51 @@ const ShiftSelector: React.FC<PanelProps<{}>> = (props) => {
 
     productionDate,
     setProductionDate,
-  } = useShiftSelectorHook(props);
+  } = useShiftSelectorHook({
+    ...props,
+    shiftSelectorPluginPanel,
+  } as PanelProps<TPropOptions>);
+
+  const shiftSelectorRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (shiftSelectorRef?.current) {
+      const shiftSelectorPluginPanel: NodeListOf<HTMLDivElement> = window.document.querySelectorAll(
+        '#' + shiftSelectorRef.current.id
+      );
+
+      shiftSelectorPluginPanel.forEach(
+        (panel) =>
+          panel.parentNode?.childElementCount &&
+          (panel.parentNode as HTMLDivElement).classList.add('show-panel-datepicker')
+      );
+
+      const editorPanelsSize = window.document.querySelectorAll('[data-testid="options-category"]').length;
+
+      setShiftSelectorPluginPanel(shiftSelectorPluginPanel);
+
+      if (shiftSelectorPluginPanel.length > 1 && !editorPanelsSize) {
+        setAlerts([
+          {
+            id: 9,
+            text: 'There is already a shift selector plugin active on this dashboard! Having more than one shift selector panel will cause infinite loops.',
+            type: 'brandDanger',
+          },
+        ]);
+        setIsBlockedRender(true);
+      } else {
+        setIsBlockedRender(false);
+      }
+    }
+  }, [shiftSelectorRef, setAlerts]);
+
+  if (isBlockedRender) {
+    return <Alerts alerts={alerts} resetAlert={resetAlert} setClosedAlerts={setClosedAlerts} />;
+  }
 
   return (
-    <ShiftSelectorWrapper>
-      {alerts.map(({ text, type, id }: { id: number; text: string; type: string }) => {
-        return (
-          <Alerts key={`alerts-${id}`} type={type as any}>
-            {text}
-            <button
-              onClick={() => {
-                resetAlert(id);
-                setClosedAlerts((d: number[]) => [...(new Set([...d, id]) as any)]);
-              }}
-            >
-              x
-            </button>
-          </Alerts>
-        );
-      })}
+    <ShiftSelectorWrapper ref={shiftSelectorRef} id="shift-selector-plugin">
+      <Alerts alerts={alerts} resetAlert={resetAlert} setClosedAlerts={setClosedAlerts} />
       {shiftOptions?.options?.length ? (
         <ShiftSelectorContainer
           style={{
@@ -84,6 +116,8 @@ const ShiftSelector: React.FC<PanelProps<{}>> = (props) => {
               setUpdateType={setUpdateType}
               productionDate={productionDate}
               setProductionDate={setProductionDate}
+              isShowProductionDateSelector={isShowProductionDateSelector}
+              isShowRangeButtons={isShowRangeButtons}
             />
           ) : (
             <></>
