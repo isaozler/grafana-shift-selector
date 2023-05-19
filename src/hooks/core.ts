@@ -440,7 +440,6 @@ ORDER by ??, ??
 
   useEffect(() => {
     const subscriber = eventBus.getStream(RefreshEvent).subscribe((event) => {
-      console.log('STREAM', shiftSelectorPluginPanel, event)
       const isRealtimeActive = !!(isAutoSelectShift && autoSelectShiftGroup);
 
       if (isRealtimeActive) {
