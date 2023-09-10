@@ -8,9 +8,9 @@ import {
   getDataSourceSrv,
   toDataQueryResponse,
   RefreshEvent,
-  getLocationSrv,
   getTemplateSrv,
   TemplateSrv,
+  locationService,
 } from '@grafana/runtime';
 
 import {
@@ -25,21 +25,21 @@ import {
   TStaticShift,
   vars,
 } from '../types';
-import { dateTimeFormat, getRelativeDates, startHourIsGreater, transformShiftData, updateActiveShift } from '../utils';
+import { dateTimeFormat, getInitGroupUUID, getRelativeDates, startHourIsGreater, transformShiftData, updateActiveShift } from '../utils';
+
+let isInitiated = false;
 
 export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
   const { data: _data, width, height, timeRange, eventBus } = props;
   const {
     isAutoSelectShift,
-    autoSelectShiftGroup,
-    refreshInterval,
     isDataSourceShifts,
     var_query_map_dynamic,
     var_query_map_static,
     shiftSelectorPluginPanel,
   } = props.options;
 
-  const locationSrv = getLocationSrv();
+  const locationSrv = locationService;
   const templateSrv = getTemplateSrv() as TemplateSrv & { timeRange: TimeRange };
   const dateRange = templateSrv.timeRange;
 
@@ -55,6 +55,7 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
   const [siteUUID, setSiteUUID] = useState<any>();
   const [isStatic, setIsStatic] = useState<boolean>(false);
   const [sqlConfig, setSqlConfig] = useState<TSqlConfig | null>(null);
+  const [autoSelectShiftGroup, setAutoSelectShiftGroup] = useState<string>(new URLSearchParams(window.location.search).get(vars.queryShiftsGroup) ?? props.options.autoSelectShiftGroup);
 
   const processShifts = useCallback(({ rowsCount, responseFields }) => {
     return Array.from({ length: rowsCount })
@@ -120,14 +121,13 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
     },
     [alerts]
   );
-  const getRefreshRate = useCallback(() => {
-    const refreshValue = new URLSearchParams(window.location.search).get('refresh');
-    const refresh = {
-      ...(refreshValue ? { refresh: refreshValue } : isAutoSelectShift ? { refresh: refreshInterval } : {}),
-    };
 
-    return refresh;
-  }, [isAutoSelectShift, refreshInterval]);
+  const getRefreshRate = useCallback(() => {
+    return {
+      refresh: locationService.getSearch().get('refresh'),
+    }
+  }, []);
+
   const setShiftParams = useCallback(
     (shift: TExtendedShift, isManualUpdate = false) => {
       const { startDate, endDate } = shift || {};
@@ -340,16 +340,14 @@ ORDER by ??, ??
       const query = {
         from: isSwapDates ? to : from,
         to: isSwapDates ? from : to,
+        [vars.queryShiftsGroup]: autoSelectShiftGroup,
         [vars.queryShiftsOptions]: uuid,
         ...getRefreshRate(),
       };
 
-      locationSrv.update({
-        partial: true,
-        query,
-      });
+      locationSrv.partial(query, false);
     }
-  }, [locationSrv, customTimeRange, timeRange.to, timeRange.from, getRefreshRate, setInitDateRange]);
+  }, [locationSrv, customTimeRange, timeRange.to, timeRange.from, getRefreshRate, setInitDateRange, autoSelectShiftGroup, isAutoSelectShift]);
 
   useEffect(() => {
     if (width < 400) {
@@ -420,15 +418,6 @@ ORDER by ??, ??
   }, [siteUUID, sqlConfig, getValues]);
 
   useEffect(() => {
-    locationSrv.update({
-      partial: true,
-      query: {
-        ...getRefreshRate(),
-      },
-    });
-  }, [locationSrv, getRefreshRate]);
-
-  useEffect(() => {
     if (isStatic && sqlConfig?.static?.shifts) {
       setShiftOptions(() => processStaticOptions(sqlConfig.static?.shifts));
     } else {
@@ -439,9 +428,35 @@ ORDER by ??, ??
   }, [isStatic, sqlConfig, setShiftOptions, processStaticOptions, templateSrv]);
 
   useEffect(() => {
-    const subscriber = eventBus.getStream(RefreshEvent).subscribe((event) => {
-      const isRealtimeActive = !!(isAutoSelectShift && autoSelectShiftGroup);
+    const isRealtimeActive = !!(isAutoSelectShift && autoSelectShiftGroup);
 
+    if (isAutoSelectShift && !autoSelectShiftGroup && shiftOptions?.options?.length && shiftValues?.length) {
+      const initGroup = getInitGroupUUID(shiftOptions.options, shiftValues)
+
+      locationSrv.partial({
+        [vars.queryShiftsGroup]: initGroup,
+        ...getRefreshRate(),
+      }, false);
+      setAutoSelectShiftGroup(initGroup)
+    }
+
+    if (!isInitiated && isRealtimeActive && autoSelectShiftGroup && shiftOptions?.options?.length && shiftValues?.length && productionDate) {
+      isInitiated = true;
+
+      updateActiveShift({
+        setShiftParams,
+        autoSelectShiftGroup,
+        isAutoSelectShift,
+        shifts: {
+          options: shiftOptions.options,
+          values: shiftValues,
+        },
+        setProductionDate,
+        productionDate,
+      });
+    }
+
+    const subscriber = eventBus.getStream(RefreshEvent).subscribe((event) => {
       if (isRealtimeActive) {
         updateActiveShift({
           setShiftParams,
@@ -461,6 +476,7 @@ ORDER by ??, ??
       subscriber.unsubscribe();
     };
   }, [
+    locationSrv,
     productionDate,
     eventBus,
     setShiftParams,
@@ -471,6 +487,7 @@ ORDER by ??, ??
     props.timeRange.from,
     props.timeRange.to,
     shiftSelectorPluginPanel,
+    getRefreshRate,
   ]);
 
   useEffect(() => {

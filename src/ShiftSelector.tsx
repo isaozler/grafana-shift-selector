@@ -4,23 +4,31 @@ import './styles/core.css';
 import 'react-datepicker/dist/react-datepicker.min.css';
 
 import { PanelProps } from '@grafana/data';
-import { TPropOptions } from './types';
+import { TPropOptions, vars } from './types';
 import { setTypeChangeHandler, shiftSelectHandler } from './utils';
 import { ShiftSelectorWrapper, ShiftSelectorContainer } from './styles/components';
 import { ShiftOptions } from './components/options';
 import { InputWrappers } from './components/inputWrappers';
 import { Alerts } from './components/alerts';
 import { useShiftSelectorHook } from './hooks/core';
+import { locationService } from '@grafana/runtime';
+import { ProgressBar } from './components/progressBar';
+
+let refreshT: NodeJS.Timer | null = null;
 
 const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
+  const [renderCount, setRenderCount] = useState(0);
   const [isBlockedRender, setIsBlockedRender] = useState(false);
   const [shiftSelectorPluginPanel, setShiftSelectorPluginPanel] = useState<NodeListOf<HTMLDivElement> | null>(null);
+  const [autoSelectShiftGroup, setAutoSelectShiftGroup] = useState(
+    locationService.getSearch().get(vars.queryShiftsGroup) ?? props.options.autoSelectShiftGroup
+  );
   const { data: _data, width, height, timeRange } = props;
+
   const {
     isShowDayLabel,
     isShowTimeLabel,
     isAutoSelectShift,
-    autoSelectShiftGroup,
     dayLabel,
     rangeLabelType,
     shiftOptionsLabelType,
@@ -30,7 +38,9 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
     var_label_mapping,
     isShowRangeButtons,
     isShowProductionDateSelector,
+    isProgressbarVisible,
   } = props.options;
+
   const {
     resetAlert,
 
@@ -50,6 +60,10 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
     setProductionDate,
   } = useShiftSelectorHook({
     ...props,
+    options: {
+      ...props.options,
+      autoSelectShiftGroup,
+    },
     shiftSelectorPluginPanel,
   } as PanelProps<TPropOptions>);
 
@@ -86,12 +100,46 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
     }
   }, [shiftSelectorRef, setAlerts]);
 
+  useEffect(() => {
+    if (
+      !!props.options.autoSelectShiftGroup &&
+      !!autoSelectShiftGroup &&
+      props.options.autoSelectShiftGroup !== autoSelectShiftGroup
+    ) {
+      locationService.partial(
+        {
+          [vars.queryShiftsGroup]: props.options.autoSelectShiftGroup,
+          [vars.queryShiftsOptions]: null,
+        },
+        true
+      );
+      setAutoSelectShiftGroup(props.options.autoSelectShiftGroup);
+    }
+  }, [props.options.autoSelectShiftGroup, autoSelectShiftGroup]);
+
+  useEffect(() => {
+    if (refreshT) {
+      clearInterval(refreshT);
+      refreshT = null;
+    }
+
+    if (props.options._refreshInterval) {
+      refreshT = setInterval(() => {
+        props.eventBus.publish({ type: 'refresh', payload: undefined, origin: undefined });
+        setRenderCount((d) => d + 1);
+      }, props.options._refreshInterval as unknown as number);
+    }
+  }, [props.eventBus, props.options._refreshInterval]);
+
   if (isBlockedRender) {
     return <Alerts alerts={alerts} resetAlert={resetAlert} setClosedAlerts={setClosedAlerts} />;
   }
 
   return (
     <ShiftSelectorWrapper ref={shiftSelectorRef} id="shift-selector-plugin">
+      {isProgressbarVisible && isAutoSelectShift && (
+        <ProgressBar renderCount={renderCount} refresh={props.options._refreshInterval} />
+      )}
       <Alerts alerts={alerts} resetAlert={resetAlert} setClosedAlerts={setClosedAlerts} />
       {shiftOptions?.options?.length ? (
         <ShiftSelectorContainer
@@ -103,6 +151,8 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
         >
           {!isAutoSelectShift ? (
             <InputWrappers
+              refreshInterval={props.options.refreshInterval}
+              _refreshInterval={props.options._refreshInterval}
               timeRange={timeRange}
               isShowDayLabel={isShowDayLabel}
               dayLabel={dayLabel}
@@ -118,6 +168,7 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
               setProductionDate={setProductionDate}
               isShowProductionDateSelector={isShowProductionDateSelector}
               isShowRangeButtons={isShowRangeButtons}
+              isProgressbarVisible={isProgressbarVisible}
             />
           ) : (
             <></>

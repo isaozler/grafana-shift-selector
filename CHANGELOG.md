@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2
+
+- Fixes for [issue #16](https://github.com/isaozler/grafana-shift-selector/issues/16)
+  - Fixed groupUUID field. Gets auto-selected if not provided.
+  - Breaking refresh rate fixed. Added custom refresh rate input to force dashboard refresh at preferred rate.
+- Added progressbar to visualise the refresh rate
+- Deprecated location service replaced
+
 ## 0.1.1
 
 - Fixed review bugs

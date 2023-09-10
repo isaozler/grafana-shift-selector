@@ -20,6 +20,8 @@ export type TRangeButtonViewType = 'icon-only' | 'text-and-icon' | 'text-only';
 export type TOptionButtonViewType = 'text-and-icon' | 'text-only';
 
 export type TPropOptions = {
+  refreshInterval: string;
+  _refreshInterval: string;
   isDataSourceShifts: boolean;
   isAutoSelectShift: boolean;
   autoSelectShiftGroup: string;
@@ -31,13 +33,13 @@ export type TPropOptions = {
   rangeOptionLabelStartEnd: string;
   rangeOptionLabelStart: string;
   rangeOptionLabelEnd: string;
-  refreshInterval: string;
   var_query_map_dynamic: string;
   var_query_map_static: string;
   var_label_mapping: string;
   shiftSelectorPluginPanel: NodeListOf<HTMLDivElement>;
   isShowRangeButtons: boolean;
   isShowProductionDateSelector: boolean;
+  isProgressbarVisible: boolean;
 };
 
 export type datePartOptions = 'both' | 'from' | 'to';
@@ -128,6 +130,7 @@ export type ExtendedShiftData = {
 
 export enum vars {
   queryShiftsOptions = 'var_shifts_options',
+  queryShiftsGroup = 'var_shift_group',
   varQueryMapper = 'var_query_map',
   varDataModel = 'var_shifts_dataModel',
   varShiftsValuesName = 'shifts_values',

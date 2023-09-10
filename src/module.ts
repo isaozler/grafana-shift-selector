@@ -111,10 +111,67 @@ export const plugin = new PanelPlugin(ShiftSelector).setPanelOptions((builder) =
       category: ['Behavior'],
       path: 'autoSelectShiftGroup',
       showIf: (c: any) => c.isAutoSelectShift,
-      name: 'Select group',
+      name: 'Group UUID',
       description:
         'In case your panel contains multiple shift groups you can specify a certain group to cycle through in real-time mode. Scope to specific shift group (provide the group uuid). Once your group is set, the border outline of that group should be colored orange.',
       defaultValue: '',
+    })
+    .addSelect({
+      category: ['Behavior'],
+      path: '_refreshInterval',
+      showIf: (c: any) => c.isAutoSelectShift,
+      name: 'Custom refresh interval',
+      description:
+        'Determine a custom dashboard refresh interval.',
+      defaultValue: 60 * 1000,
+      settings: {
+        options: [
+          {
+            label: '5 seconds',
+            value: 5 * 1000,
+          },
+          {
+            label: '10 seconds',
+            value: 10 * 1000,
+          },
+          {
+            label: '30 seconds',
+            value: 30 * 1000,
+          },
+          {
+            label: '1 minute',
+            value: 60 * 1000,
+          },
+          {
+            label: '30 minutes',
+            value: 30 * 60 * 1000,
+          },
+          {
+            label: '1 hour',
+            value: 60 * 60 * 1000,
+          },
+          {
+            label: '6 hour',
+            value: 6 * 60 * 60 * 1000,
+          },
+          {
+            label: '12 hour',
+            value: 12 * 60 * 60 * 1000,
+          },
+          {
+            label: '24 hour',
+            value: 24 * 60 * 60 * 1000,
+          }
+        ]
+      }
+    })
+    .addBooleanSwitch({
+      showIf: (c: any) => c.isAutoSelectShift,
+      category: ['Behavior'],
+      path: 'isProgressbarVisible',
+      name: 'Show refresh progress',
+      description: 'Show or hide the progress of the refresh rate.',
+      defaultValue: true,
     })
     .addBooleanSwitch({
       showIf: (c: any) => !c.isAutoSelectShift,

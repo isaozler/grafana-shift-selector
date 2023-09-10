@@ -16,7 +16,6 @@ type TPropInputWrapperOptions = Omit<
   | 'autoSelectShiftGroup'
   | 'isShowTimeLabel'
   | 'shiftOptionsLabelType'
-  | 'refreshInterval'
   | 'var_query_map_dynamic'
   | 'var_query_map_static'
   | 'var_label_mapping'

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { config } from '@grafana/runtime';
+import { config, locationService } from '@grafana/runtime';
 import {
   ShiftOptionsWrapper,
   ShiftsWrapper,
@@ -68,9 +68,9 @@ export const ShiftOptions = ({
   const { sunny, sunset, night } = mappingsParsed;
 
   const allMappings = {
-    sunny: ['morning', 'morgen', 'day', ...(sunny ? sunny : [])],
-    'sunset-down': ['afternoon', 'middag', ...(sunset ? sunset : [])],
-    night: ['night', 'nacht', ...(night ? night : [])],
+    sunny: ['morning', 'morgen', 'day', ...(sunny || [])],
+    'sunset-down': ['afternoon', 'middag', ...(sunset || [])],
+    night: ['night', 'nacht', ...(night || [])],
   };
 
   return (
@@ -99,8 +99,8 @@ export const ShiftOptions = ({
                   const start = `${sh}:${sm}`;
                   const end = `${eh}:${em}`;
                   const isActive =
-                    new URLSearchParams(window.location.search).get(vars.queryShiftsOptions) === uuid ||
-                    new URLSearchParams(window.location.search).get(vars.queryShiftsOptions) === 'All';
+                    locationService.getSearch().get(vars.queryShiftsOptions) === uuid ||
+                    locationService.getSearch().get(vars.queryShiftsOptions) === 'All';
                   const fromTimeLabel = setType === 'from' ? `${start}` : `${end}`;
                   const timeLabel = setType === 'both' ? `${start} - ${end}` : fromTimeLabel;
 
@@ -114,7 +114,11 @@ export const ShiftOptions = ({
                           ? `mdi mdi-weather-${buttonTypes(label, allMappings)}`
                           : ''
                       }`}
-                      onClick={() => shiftSelectHandler(item, setShiftParams, productionDate)}
+                      onClick={() => {
+                        if (!isRealtimeActive) {
+                          shiftSelectHandler(item, setShiftParams, productionDate);
+                        }
+                      }}
                       isRealtime={isRealtimeActive}
                     >
                       <ShiftLabelSpan>

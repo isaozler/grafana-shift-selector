@@ -1,5 +1,5 @@
 import { dateTime, dateTimeAsMoment } from '@grafana/data';
-import { Option, ShiftData, ShiftI, TExtendedShift, TMappings, TUpdateActiveShiftProps } from './types';
+import { Option, ShiftData, ShiftI, TExtendedShift, TMappings, TUpdateActiveShiftProps, vars } from './types';
 
 export const dateTimeFormat = `YYYY-MM-DD HH:mm:ss`;
 export const fakeEpoc = '2009-10-17';
@@ -192,16 +192,27 @@ export function getRelativeDates() {
   };
 }
 
+export const getInitGroupUUID = (options: TUpdateActiveShiftProps['shifts']['options'], values: TUpdateActiveShiftProps['shifts']['values']) => {
+  const shifts = getShifts(options, values, dateTimeAsMoment().unix() * 1000);
+  const [initGroup] = Object.keys(shifts) || [];
+
+  return initGroup
+}
+
 export const updateActiveShift = (props: TUpdateActiveShiftProps) => {
-  const isRealtimeActive = !!(props.isAutoSelectShift && props.autoSelectShiftGroup);
-  const relativeToDate = isRealtimeActive ? dateTimeAsMoment().unix() * 1000 : props.productionDate;
+  const queryShiftsGroup = new URLSearchParams(window.location.search).get(vars.queryShiftsGroup);
+  const relativeToDate = !!props.isAutoSelectShift ? dateTimeAsMoment().unix() * 1000 : props.productionDate;
   const shifts = getShifts(props.shifts.options, props.shifts.values, relativeToDate);
 
-  const [initGroup] = Object.keys(shifts) || [];
-  let activeShifts =
-    props.autoSelectShiftGroup && shifts[props.autoSelectShiftGroup]
-      ? shifts[props.autoSelectShiftGroup]
-      : shifts[initGroup];
+  const initGroup = getInitGroupUUID(props.shifts.options, props.shifts.values)
+
+  let activeShifts = shifts[initGroup]
+
+  if (queryShiftsGroup && shifts[queryShiftsGroup]) {
+    activeShifts = shifts[queryShiftsGroup]
+  } else if (props.autoSelectShiftGroup && shifts[props.autoSelectShiftGroup]) {
+    activeShifts = shifts[props.autoSelectShiftGroup]
+  }
 
   const activeShift = ((activeShifts as unknown) as TExtendedShift[]).find(({ _ }) => _.isActive);
 
