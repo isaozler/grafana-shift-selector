@@ -1,4 +1,4 @@
-import { PanelPlugin } from '@grafana/data';
+import {PanelPlugin} from '@grafana/data';
 import ShiftSelector from './ShiftSelector';
 
 export const plugin = new PanelPlugin(ShiftSelector).setPanelOptions((builder) => {
@@ -106,6 +106,14 @@ export const plugin = new PanelPlugin(ShiftSelector).setPanelOptions((builder) =
       name: 'Real-time shift auto-select',
       description: 'This gives you the ability to track the shifts in real-time',
       defaultValue: false,
+    })
+    .addBooleanSwitch({
+      category: ['Behavior'],
+      path: 'isAutoChangeEndToNow',
+      showIf: (c: any) => c.isAutoSelectShift,
+      name: 'Change the end of time-range to now',
+      description: 'This will seek the current end of the time-range to now instead of ending shift time',
+      defaultValue: true,
     })
     .addTextInput({
       category: ['Behavior'],
@@ -287,9 +295,9 @@ export const plugin = new PanelPlugin(ShiftSelector).setPanelOptions((builder) =
         'Extend your labels with localized labels. These labels will be linked to your shifts. E.g. the sunny icon will be applied once the label contains "sabah" in Turkish or "spät" in case you have German labels for your shifts.',
       defaultValue: JSON.stringify(
         {
-          sunny: ['sabah', 'spät'],
-          sunset: ['ikindi', 'früh'],
-          night: ['akşam', 'nacht'],
+          sunny: [],
+          sunset: [],
+          night: [],
         },
         null,
         4

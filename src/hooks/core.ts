@@ -1,16 +1,16 @@
-import { useState, useCallback, useEffect } from 'react';
+import {useCallback, useEffect, useState} from 'react';
 
 import sqlstring from 'sqlstring';
 
-import { DataFrame, LoadingState, Vector, TimeRange, PanelProps } from '@grafana/data';
+import {DataFrame, LoadingState, PanelProps, TimeRange, Vector} from '@grafana/data';
 import {
   getBackendSrv,
   getDataSourceSrv,
-  toDataQueryResponse,
-  RefreshEvent,
   getTemplateSrv,
-  TemplateSrv,
   locationService,
+  RefreshEvent,
+  TemplateSrv,
+  toDataQueryResponse,
 } from '@grafana/runtime';
 
 import {
@@ -25,14 +25,22 @@ import {
   TStaticShift,
   vars,
 } from '../types';
-import { dateTimeFormat, getInitGroupUUID, getRelativeDates, startHourIsGreater, transformShiftData, updateActiveShift } from '../utils';
+import {
+  dateTimeFormat,
+  getInitGroupUUID,
+  getRelativeDates,
+  startHourIsGreater,
+  transformShiftData,
+  updateActiveShift
+} from '../utils';
 
 let isInitiated = false;
 
 export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
-  const { data: _data, width, height, timeRange, eventBus } = props;
+  const {data: _data, width, height, timeRange, eventBus} = props;
   const {
     isAutoSelectShift,
+    isAutoChangeEndToNow,
     isDataSourceShifts,
     var_query_map_dynamic,
     var_query_map_static,
@@ -57,8 +65,8 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
   const [sqlConfig, setSqlConfig] = useState<TSqlConfig | null>(null);
   const [autoSelectShiftGroup, setAutoSelectShiftGroup] = useState<string>(new URLSearchParams(window.location.search).get(vars.queryShiftsGroup) ?? props.options.autoSelectShiftGroup);
 
-  const processShifts = useCallback(({ rowsCount, responseFields }) => {
-    return Array.from({ length: rowsCount })
+  const processShifts = useCallback(({rowsCount, responseFields}) => {
+    return Array.from({length: rowsCount})
       .reduce((res: any[], _row: any, rowIndex: number) => {
         return [
           ...res,
@@ -98,13 +106,13 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
   }, []);
   const setAlertHandler = useCallback(
     (alert: TAlert) => {
-      const isDuplicate = !!alerts.find(({ id, text }) => id === alert.id && text === alert.text);
+      const isDuplicate = !!alerts.find(({id, text}) => id === alert.id && text === alert.text);
 
       if (isDuplicate) {
         return;
       }
 
-      const allAlerts = alerts.filter(({ id }: { id: number }) => alert.id !== id);
+      const allAlerts = alerts.filter(({id}: { id: number }) => alert.id !== id);
       return setAlerts(() => [...allAlerts, alert]);
     },
     [alerts]
@@ -117,7 +125,7 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
         return;
       }
 
-      return setAlerts((alerts: TAlert[]) => [...alerts.filter(({ id: _id }: { id: number }) => _id !== id)]);
+      return setAlerts((alerts: TAlert[]) => [...alerts.filter(({id: _id}: { id: number }) => _id !== id)]);
     },
     [alerts]
   );
@@ -130,10 +138,10 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
 
   const setShiftParams = useCallback(
     (shift: TExtendedShift, isManualUpdate = false) => {
-      const { startDate, endDate } = shift || {};
+      const {startDate, endDate} = shift || {};
 
       const from = startDate.unix() * 1000;
-      const to = endDate.unix() * 1000;
+      const to = isAutoChangeEndToNow ? 'now' : endDate.unix() * 1000;
 
       if (isAutoSelectShift && isManualUpdate) {
         return setAlertHandler({
@@ -142,7 +150,6 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
           text: `Warning! Currently the selector is in realtime mode. You can change this in the panel options by disabling the "Real-time shift auto-select" inside the "Behavior" panel options.`,
         });
       }
-
       if (from && to) {
         setCustomTimeRange(() => ({
           from,
@@ -151,16 +158,16 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
         }));
       }
     },
-    [isAutoSelectShift, setAlertHandler, setCustomTimeRange]
+    [isAutoSelectShift, isAutoChangeEndToNow, setAlertHandler, setCustomTimeRange]
   );
   const setManualShiftParams = useCallback(
     (shift: TExtendedShift, productionDate: number) => {
-      const { startDate, endDate } =
-        transformShiftData(
-          (shift as unknown) as ShiftI & { index: number },
-          startHourIsGreater(shift.start, shift.end),
-          productionDate
-        ) || {};
+      const {startDate, endDate} =
+      transformShiftData(
+        (shift as unknown) as ShiftI & { index: number },
+        startHourIsGreater(shift.start, shift.end),
+        productionDate
+      ) || {};
 
       let updateTimeRange = {
         from: startDate.unix() * 1000,
@@ -212,7 +219,7 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
       const db = getBackendSrv();
       const dataSources = getDataSourceSrv().getList() as any;
       const datasourceRef: IVariableModel | null =
-        (templateSrv.getVariables().find(({ name }) => name === vars.varDataModel) as IVariableModel) || null;
+        (templateSrv.getVariables().find(({name}) => name === vars.varDataModel) as IVariableModel) || null;
 
       if (!datasourceRef || !sqlConfig) {
         return setAlertHandler({
@@ -222,8 +229,8 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
         });
       }
 
-      const { id: datasourceId } =
-        dataSources.find(({ name }: { name: string }) => name === datasourceRef.current.value) || {};
+      const {id: datasourceId} =
+      dataSources.find(({name}: { name: string }) => name === datasourceRef.current.value) || {};
 
       if (!datasourceId) {
         return setAlertHandler({
@@ -291,16 +298,16 @@ ORDER by ??, ??
         })
         .toPromise()) as { data: { results: { shifts_values: { dataframes: DataFrame[] } } } }) as any;
 
-      const { data: queries, state } = toDataQueryResponse(response);
+      const {data: queries, state} = toDataQueryResponse(response);
 
       if (state === LoadingState.Done) {
-        const { fields: responseFields } =
-          queries.find((instance) => instance.refId === vars.varShiftsValuesName) || {};
+        const {fields: responseFields} =
+        queries.find((instance) => instance.refId === vars.varShiftsValuesName) || {};
         const [field]: [{ name: string; values: Vector }] = responseFields;
         const rowsCount = field?.values?.toArray().length || 0;
 
         if (rowsCount) {
-          const shifts = processShifts({ rowsCount, responseFields });
+          const shifts = processShifts({rowsCount, responseFields});
 
           if (shifts.length) {
             setShiftValues(() => shifts);
@@ -333,13 +340,13 @@ ORDER by ??, ??
     setInitDateRange(() => dateRange);
 
     if (customTimeRange) {
-      const { from, to, uuid } = customTimeRange || {};
+      const {from, to, uuid} = customTimeRange || {};
       const fromCheck = typeof from === 'string' ? timeRange.from.unix() * 1000 : from;
       const toCheck = typeof to === 'string' ? timeRange.to.unix() * 1000 : to;
       const isSwapDates = fromCheck > toCheck;
       const query = {
         from: isSwapDates ? to : from,
-        to: isSwapDates ? from : to,
+        to: isSwapDates ? from : (isAutoChangeEndToNow ? 'now' : to),
         [vars.queryShiftsGroup]: autoSelectShiftGroup,
         [vars.queryShiftsOptions]: uuid,
         ...getRefreshRate(),
@@ -347,7 +354,7 @@ ORDER by ??, ??
 
       locationSrv.partial(query, false);
     }
-  }, [locationSrv, customTimeRange, timeRange.to, timeRange.from, getRefreshRate, setInitDateRange, autoSelectShiftGroup, isAutoSelectShift]);
+  }, [locationSrv, customTimeRange, timeRange.to, timeRange.from, getRefreshRate, setInitDateRange, autoSelectShiftGroup, isAutoChangeEndToNow, isAutoSelectShift]);
 
   useEffect(() => {
     if (width < 400) {
@@ -372,14 +379,14 @@ ORDER by ??, ??
           text: `Error! Please configure the panel variables. For more info see documentation`,
         });
       }
-    } else if (alerts.find(({ id }) => id === 5)) {
+    } else if (alerts.find(({id}) => id === 5)) {
       resetAlert(5);
     }
   }, [resetAlert, shiftOptions, alerts, setAlertHandler, siteUUID]);
 
   useEffect(() => {
     if (shiftValues.length && shiftOptions?.options && !closedAlerts.includes(1)) {
-      const shiftGroupUUIDs: { [key: string]: number } = shiftValues.reduce((res: any, { text }: { text: string }) => {
+      const shiftGroupUUIDs: { [key: string]: number } = shiftValues.reduce((res: any, {text}: { text: string }) => {
         const [, shiftGroupUUID] = text.split('|');
         return {
           ...res,
@@ -405,7 +412,7 @@ ORDER by ??, ??
         }
       }
 
-      if (alerts.find(({ id }) => id === 1)) {
+      if (alerts.find(({id}) => id === 1)) {
         resetAlert(1);
       }
     }
@@ -422,7 +429,7 @@ ORDER by ??, ??
       setShiftOptions(() => processStaticOptions(sqlConfig.static?.shifts));
     } else {
       setShiftOptions(() =>
-        templateSrv.getVariables().find(({ name }: { name: string }) => name === vars.queryShiftsOptions)
+        templateSrv.getVariables().find(({name}: { name: string }) => name === vars.queryShiftsOptions)
       );
     }
   }, [isStatic, sqlConfig, setShiftOptions, processStaticOptions, templateSrv]);
@@ -447,6 +454,7 @@ ORDER by ??, ??
         setShiftParams,
         autoSelectShiftGroup,
         isAutoSelectShift,
+        isAutoChangeEndToNow,
         shifts: {
           options: shiftOptions.options,
           values: shiftValues,
@@ -462,6 +470,7 @@ ORDER by ??, ??
           setShiftParams,
           autoSelectShiftGroup,
           isAutoSelectShift,
+          isAutoChangeEndToNow,
           shifts: {
             options: shiftOptions.options,
             values: shiftValues,
@@ -482,6 +491,7 @@ ORDER by ??, ??
     setShiftParams,
     autoSelectShiftGroup,
     isAutoSelectShift,
+    isAutoChangeEndToNow,
     shiftOptions,
     shiftValues,
     props.timeRange.from,
@@ -559,7 +569,7 @@ ORDER by ??, ??
       if (sqlConfig?.static?.shifts.length) {
         setShiftOptions(() => processStaticOptions(sqlConfig.static?.shifts));
       } else {
-        setShiftOptions(() => templateSrv.getVariables().find(({ name }) => name === vars.queryShiftsOptions) || null);
+        setShiftOptions(() => templateSrv.getVariables().find(({name}) => name === vars.queryShiftsOptions) || null);
       }
 
       if (!initDateRange) {

@@ -1,6 +1,6 @@
 {
   "name": "isaozler-shiftselector-panel",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "",
   "scripts": {
     "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",

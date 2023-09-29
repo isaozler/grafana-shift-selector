@@ -24,6 +24,7 @@ export type TPropOptions = {
   _refreshInterval: string;
   isDataSourceShifts: boolean;
   isAutoSelectShift: boolean;
+  isAutoChangeEndToNow: boolean;
   autoSelectShiftGroup: string;
   isShowDayLabel: boolean;
   isShowTimeLabel: boolean;
@@ -144,6 +145,7 @@ export type TUpdateActiveShiftProps = {
   setShiftParams: (shift: TExtendedShift, isManualUpdate?: any) => void;
   autoSelectShiftGroup: string;
   isAutoSelectShift: boolean;
+  isAutoChangeEndToNow: boolean;
   setProductionDate: React.Dispatch<number>;
   productionDate: number;
   shifts: {
