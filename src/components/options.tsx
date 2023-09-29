@@ -1,42 +1,42 @@
 import React from 'react';
 
-import { config, locationService } from '@grafana/runtime';
+import {config, locationService} from '@grafana/runtime';
 import {
+  ShiftButton,
+  ShiftButtonsWrapper,
+  ShiftLabel,
+  ShiftLabelSpan,
   ShiftOptionsWrapper,
   ShiftsWrapper,
-  ShiftLabel,
-  ShiftButtonsWrapper,
-  ShiftButton,
-  ShiftLabelSpan,
 } from '../styles/components';
 import {
+  datePartOptions,
   EViewType,
   Option,
   ShiftI,
   TMappings,
   TOptionButtonViewType,
   TViewTypeOptions,
-  datePartOptions,
   vars,
 } from '../types';
-import { buttonTypes, getShifts, shiftSelectHandler as utilShiftSelectHandler } from '../utils';
+import {buttonTypes, getShifts, shiftSelectHandler as utilShiftSelectHandler} from '../utils';
 
 const isDark = config.theme.isDark;
 
 export const ShiftOptions = ({
-  options,
-  setShiftParams,
-  shiftSelectHandler,
-  setType,
-  viewType,
-  data: optionsData,
-  isAutoSelectShift,
-  isShowTimeLabel,
-  autoSelectShiftGroup,
-  optionViewType,
-  mappings,
-  productionDate,
-}: {
+   options,
+   setShiftParams,
+   shiftSelectHandler,
+   setType,
+   viewType,
+   data: optionsData,
+   isAutoSelectShift,
+   isShowTimeLabel,
+   autoSelectShiftGroup,
+   optionViewType,
+   mappings,
+   productionDate,
+  }: {
   data: any[];
   setType: datePartOptions;
   viewType: TViewTypeOptions;
@@ -45,6 +45,7 @@ export const ShiftOptions = ({
   setShiftParams: (shift: ShiftI, isManualUpdate?: any) => void;
   shiftSelectHandler: typeof utilShiftSelectHandler;
   isAutoSelectShift: boolean;
+  isAutoChangeEndToNow: boolean;
   isShowTimeLabel: boolean;
   autoSelectShiftGroup: string | undefined;
   mappings: string;
@@ -65,7 +66,7 @@ export const ShiftOptions = ({
     console.error(error);
   }
 
-  const { sunny, sunset, night } = mappingsParsed;
+  const {sunny, sunset, night} = mappingsParsed;
 
   const allMappings = {
     sunny: ['morning', 'morgen', 'day', ...(sunny || [])],
@@ -93,7 +94,7 @@ export const ShiftOptions = ({
                 .filter((d) => d)
                 .sort((a: any, b: any) => a?.order - b?.order)
                 .map((item: ShiftI) => {
-                  const { uuid, label, start: _start, end: _end } = item || {};
+                  const {uuid, label, start: _start, end: _end} = item || {};
                   const [sh, sm] = _start.split(':');
                   const [eh, em] = _end.split(':');
                   const start = `${sh}:${sm}`;

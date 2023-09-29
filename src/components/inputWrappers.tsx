@@ -13,6 +13,7 @@ type TPropInputWrapperOptions = Omit<
   TPropOptions,
   | 'isDataSourceShifts'
   | 'isAutoSelectShift'
+  | 'isAutoChangeEndToNow'
   | 'autoSelectShiftGroup'
   | 'isShowTimeLabel'
   | 'shiftOptionsLabelType'
