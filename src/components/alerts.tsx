@@ -17,7 +17,13 @@ export const Alerts = ({
 
   return (
     <>
-      {alerts.map(({ text, type, id }: { id: number; text: string; type: string }) => {
+      {alerts.map((alert: { id: number; text: string; type: string }) => {
+        const { text, type, id } = alert || {};
+
+        if (!type || !text) {
+          return <></>;
+        }
+
         return (
           <AlertsDiv key={`alerts-${id}`} type={type as any}>
             {text}

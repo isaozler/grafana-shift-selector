@@ -37,6 +37,7 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
     var_query_map_dynamic,
     var_query_map_static,
     shiftSelectorPluginPanel,
+    isBlockedRender,
   } = props.options;
 
   const locationSrv = locationService;
@@ -55,7 +56,7 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
   const [siteUUID, setSiteUUID] = useState<any>();
   const [isStatic, setIsStatic] = useState<boolean>(false);
   const [sqlConfig, setSqlConfig] = useState<TSqlConfig | null>(null);
-  const [autoSelectShiftGroup, setAutoSelectShiftGroup] = useState<string>(new URLSearchParams(window.location.search).get(vars.queryShiftsGroup) ?? props.options.autoSelectShiftGroup);
+  const [autoSelectShiftGroup, setAutoSelectShiftGroup] = useState<string>(locationService.getSearch().get(vars.queryShiftsGroup) ?? props.options.autoSelectShiftGroup);
 
   const processShifts = useCallback(({ rowsCount, responseFields }) => {
     return Array.from({ length: rowsCount })
@@ -171,11 +172,11 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
       };
 
       if (updateType === 'from') {
-        const searchTo = new URLSearchParams(window.location.search).get('to');
+        const searchTo = locationService.getSearch().get('to');
         updateTimeRange.to = searchTo ? +searchTo : updateTimeRange.to;
         params = {};
       } else if (updateType === 'to') {
-        const searchFrom = new URLSearchParams(window.location.search).get('from');
+        const searchFrom = locationService.getSearch().get('from');
         updateTimeRange.from = searchFrom ? +searchFrom : updateTimeRange.from;
         params = {};
       }
@@ -358,7 +359,7 @@ ORDER by ??, ??
   }, [width, height, setViewType]);
 
   useEffect(() => {
-    if (!shiftOptions || !shiftOptions?.options?.length) {
+    if (!shiftOptions?.options?.length) {
       if (shiftOptions?.options?.length === 0) {
         setAlertHandler({
           id: 5,
@@ -453,6 +454,7 @@ ORDER by ??, ??
         },
         setProductionDate,
         productionDate,
+        isBlockedRender,
       });
     }
 
@@ -468,6 +470,7 @@ ORDER by ??, ??
           },
           setProductionDate,
           productionDate,
+          isBlockedRender,
         });
       }
     });
@@ -488,6 +491,7 @@ ORDER by ??, ??
     props.timeRange.to,
     shiftSelectorPluginPanel,
     getRefreshRate,
+    isBlockedRender,
   ]);
 
   useEffect(() => {

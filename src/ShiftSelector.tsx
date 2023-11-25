@@ -24,7 +24,6 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
     locationService.getSearch().get(vars.queryShiftsGroup) ?? props.options.autoSelectShiftGroup
   );
   const { data: _data, width, height, timeRange } = props;
-
   const {
     isShowDayLabel,
     isShowTimeLabel,
@@ -40,22 +39,18 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
     isShowProductionDateSelector,
     isProgressbarVisible,
   } = props.options;
-
   const {
     resetAlert,
-
     alerts,
     shiftOptions,
     shiftValues,
     _viewType,
     updateType,
-
     setAlerts,
     setClosedAlerts,
     setCustomTimeRange,
     setUpdateType,
     setManualShiftParams,
-
     productionDate,
     setProductionDate,
   } = useShiftSelectorHook({
@@ -63,10 +58,10 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
     options: {
       ...props.options,
       autoSelectShiftGroup,
+      isBlockedRender,
     },
     shiftSelectorPluginPanel,
   } as PanelProps<TPropOptions>);
-
   const shiftSelectorRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -77,8 +72,8 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
 
       shiftSelectorPluginPanel.forEach(
         (panel) =>
-          panel.parentNode?.childElementCount &&
-          (panel.parentNode as HTMLDivElement).classList.add('show-panel-datepicker')
+          panel?.parentNode?.childElementCount &&
+          (panel?.parentNode as HTMLDivElement)?.classList.add('show-panel-datepicker')
       );
 
       const editorPanelsSize = window.document.querySelectorAll('[data-testid="options-category"]').length;
@@ -89,7 +84,7 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
         setAlerts([
           {
             id: 9,
-            text: 'There is already a shift selector plugin active on this dashboard! Having more than one shift selector panel will cause infinite loops.',
+            text: 'There is already a shift selector plugin active on this dashboard! Multiple shift selector panels on your dashboard may cause unexpected errors like infinite loops/memory leaks.',
             type: 'brandDanger',
           },
         ]);
@@ -129,7 +124,20 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
         setRenderCount((d) => d + 1);
       }, props.options._refreshInterval as unknown as number);
     }
+
+    return () => {
+      if (refreshT) {
+        clearInterval(refreshT);
+        refreshT = null;
+      }
+    };
   }, [props.eventBus, props.options._refreshInterval]);
+
+  useEffect(() => {
+    if (!isAutoSelectShift && props.timeRange.from) {
+      setProductionDate(props.timeRange.from.unix() * 1000);
+    }
+  }, [isAutoSelectShift, setProductionDate, props]);
 
   if (isBlockedRender) {
     return <Alerts alerts={alerts} resetAlert={resetAlert} setClosedAlerts={setClosedAlerts} />;
@@ -169,6 +177,7 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
               isShowProductionDateSelector={isShowProductionDateSelector}
               isShowRangeButtons={isShowRangeButtons}
               isProgressbarVisible={isProgressbarVisible}
+              isBlockedRender={isBlockedRender}
             />
           ) : (
             <></>

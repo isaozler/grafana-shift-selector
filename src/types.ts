@@ -40,6 +40,7 @@ export type TPropOptions = {
   isShowRangeButtons: boolean;
   isShowProductionDateSelector: boolean;
   isProgressbarVisible: boolean;
+  isBlockedRender: boolean;
 };
 
 export type datePartOptions = 'both' | 'from' | 'to';
@@ -150,4 +151,5 @@ export type TUpdateActiveShiftProps = {
     options: any;
     values: any;
   };
+  isBlockedRender: boolean;
 };

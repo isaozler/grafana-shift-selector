@@ -1,4 +1,5 @@
 import { dateTime, dateTimeAsMoment } from '@grafana/data';
+import { locationService } from '@grafana/runtime';
 import { Option, ShiftData, ShiftI, TExtendedShift, TMappings, TUpdateActiveShiftProps, vars } from './types';
 
 export const dateTimeFormat = `YYYY-MM-DD HH:mm:ss`;
@@ -142,10 +143,12 @@ export const getShifts = (options: Option[], optionsData: any[], productionDate:
 
 export const getBreweryUUID = (name: string): string | null => {
   const matched = new RegExp(/\((\w+)\)/g).exec(name);
-  if (!!matched) {
+
+  if (matched) {
     const [, breweryUUID] = matched;
     return breweryUUID;
   }
+
   return null;
 };
 
@@ -183,8 +186,8 @@ export const shiftSelectHandler = (
 ) => setShiftParams(shift, productionDate);
 
 export function getRelativeDates() {
-  const relativeFrom = new URLSearchParams(window.location.search).get('from')?.includes('now');
-  const relativeTo = new URLSearchParams(window.location.search).get('to')?.includes('now');
+  const relativeFrom = locationService.getSearch().get('from')?.includes('now');
+  const relativeTo = locationService.getSearch().get('to')?.includes('now');
 
   return {
     relativeFrom,
@@ -200,12 +203,11 @@ export const getInitGroupUUID = (options: TUpdateActiveShiftProps['shifts']['opt
 }
 
 export const updateActiveShift = (props: TUpdateActiveShiftProps) => {
-  const queryShiftsGroup = new URLSearchParams(window.location.search).get(vars.queryShiftsGroup);
-  const relativeToDate = !!props.isAutoSelectShift ? dateTimeAsMoment().unix() * 1000 : props.productionDate;
+  const queryShiftsGroup = locationService.getSearch().get(vars.queryShiftsGroup);
+  const currentSetShift = locationService.getSearch().get(vars.queryShiftsOptions)
+  const relativeToDate = props.isAutoSelectShift ? dateTimeAsMoment().unix() * 1000 : props.productionDate;
   const shifts = getShifts(props.shifts.options, props.shifts.values, relativeToDate);
-
   const initGroup = getInitGroupUUID(props.shifts.options, props.shifts.values)
-
   let activeShifts = shifts[initGroup]
 
   if (queryShiftsGroup && shifts[queryShiftsGroup]) {
@@ -215,8 +217,9 @@ export const updateActiveShift = (props: TUpdateActiveShiftProps) => {
   }
 
   const activeShift = ((activeShifts as unknown) as TExtendedShift[]).find(({ _ }) => _.isActive);
+  const isShiftActive = activeShift ? isCurrentTimeInShiftRange(activeShift) : false
 
-  if (activeShift) {
+  if (activeShift && activeShift.uuid !== currentSetShift && isShiftActive && !props.isBlockedRender) {
     props.setShiftParams(activeShift, false);
   }
 };

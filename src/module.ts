@@ -151,15 +151,15 @@ export const plugin = new PanelPlugin(ShiftSelector).setPanelOptions((builder) =
             value: 60 * 60 * 1000,
           },
           {
-            label: '6 hour',
+            label: '6 hours',
             value: 6 * 60 * 60 * 1000,
           },
           {
-            label: '12 hour',
+            label: '12 hours',
             value: 12 * 60 * 60 * 1000,
           },
           {
-            label: '24 hour',
+            label: '24 hours',
             value: 24 * 60 * 60 * 1000,
           }
         ]

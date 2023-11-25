@@ -7,7 +7,7 @@ const colors: any = config.theme.colors;
 
 const load = keyframes({
   '0%': { width: '0%' },
-  '100%': { width: '100%' },
+  '100%': { width: 'calc(100% + 16px)' },
 });
 
 export const Bar = styled('div', {
@@ -16,17 +16,26 @@ export const Bar = styled('div', {
   marginTop: -16,
   marginBottom: 12,
   position: 'relative',
+  '&:before': {
+    content: '',
+    position: 'absolute',
+    top: -24,
+    left: -8,
+    background: colors.border1,
+    width: 'calc(100% + 16px)',
+    height: '100%',
+  },
   '&:after': {
     content: '',
     position: 'absolute',
-    top: 0,
-    left: 0,
-    background: colors.border1,
-    width: 10,
+    top: -24,
+    left: -8,
+    background: colors.border2,
+    width: 8,
     height: '100%',
     animationName: load,
     animationDuration: 'inherit',
-    animationTimingFunction: 'linear',
+    animationTimingFunction: 'ease-out',
     animationIterationCount: 'infinite',
   },
 });

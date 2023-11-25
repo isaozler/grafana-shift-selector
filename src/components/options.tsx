@@ -19,7 +19,12 @@ import {
   datePartOptions,
   vars,
 } from '../types';
-import { buttonTypes, getShifts, shiftSelectHandler as utilShiftSelectHandler } from '../utils';
+import {
+  buttonTypes,
+  getShifts,
+  isCurrentTimeInShiftRange,
+  shiftSelectHandler as utilShiftSelectHandler,
+} from '../utils';
 
 const isDark = config.theme.isDark;
 
@@ -76,7 +81,11 @@ export const ShiftOptions = ({
   return (
     <ShiftOptionsWrapper viewType={viewType as any}>
       {Object.keys(shifts).map((key: string) => {
-        const isRealtimeActive = isAutoSelectShift && autoSelectShiftGroup === shifts[key][0].shiftGroupUUID;
+        const currentShift = shifts[key][0];
+        const isRealtimeActive =
+          isAutoSelectShift &&
+          (autoSelectShiftGroup === currentShift.shiftGroupUUID || !isCurrentTimeInShiftRange(currentShift));
+
         return (
           <ShiftsWrapper
             key={key}
@@ -86,7 +95,7 @@ export const ShiftOptions = ({
             isRealtime={isRealtimeActive}
           >
             {Object.keys(shifts).length > 1 && (
-              <ShiftLabel viewType={viewType}>{shifts[key][0] ? shifts[key][0].shiftGroupName : key}</ShiftLabel>
+              <ShiftLabel viewType={viewType}>{currentShift ? currentShift.shiftGroupName : key}</ShiftLabel>
             )}
             <ShiftButtonsWrapper>
               {shifts[key]

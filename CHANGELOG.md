@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.3 - 0.1.4
+
+- Fixes for [issue #16](https://github.com/isaozler/grafana-shift-selector/issues/16)
+  - Custom interval for detached reload checks to preserve other dashboard panels
+- Grafana Review fixes
+  - Fixed blocked panel updates to avoid memory leaks
+  - Remaining deprecated window.location.search
+
 ## 0.1.2
 
 - Fixes for [issue #16](https://github.com/isaozler/grafana-shift-selector/issues/16)

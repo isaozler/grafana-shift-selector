@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ProductionDay, SelectorInputs } from '../styles/components';
 import DatePicker from 'react-datepicker';
 import { RangeButton } from './rangeButton';
@@ -47,10 +47,7 @@ export const InputWrappers = (props: TPropInputWrapperOptions) => {
     isShowRangeButtons,
     isShowProductionDateSelector,
   } = props;
-
   const dateFormat = 'yyyy-MM-dd';
-  const [_viewType] = useState<string>('default');
-
   const btnStartEndIsActive = updateType === datePartsToSet.both;
   const btnStartIsActive = updateType === datePartsToSet.from;
   const btnEndIsActive = updateType === datePartsToSet.to;
