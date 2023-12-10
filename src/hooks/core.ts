@@ -28,6 +28,7 @@ import {
 import { dateTimeFormat, getInitGroupUUID, getRelativeDates, startHourIsGreater, transformShiftData, updateActiveShift } from '../utils';
 
 let isInitiated = false;
+let refresh: null | string = null
 
 export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
   const { data: _data, width, height, timeRange, eventBus } = props;
@@ -338,12 +339,20 @@ ORDER by ??, ??
       const fromCheck = typeof from === 'string' ? timeRange.from.unix() * 1000 : from;
       const toCheck = typeof to === 'string' ? timeRange.to.unix() * 1000 : to;
       const isSwapDates = fromCheck > toCheck;
+      let { refresh: _refresh } = getRefreshRate()
+
+      if (refresh && !_refresh) {
+        _refresh = refresh
+      } else if (!refresh && _refresh) {
+        refresh = _refresh
+      }
+
       const query = {
         from: isSwapDates ? to : from,
         to: isSwapDates ? from : to,
         [vars.queryShiftsGroup]: autoSelectShiftGroup,
         [vars.queryShiftsOptions]: uuid,
-        ...getRefreshRate(),
+        refresh: _refresh,
       };
 
       locationSrv.partial(query, false);
@@ -512,7 +521,7 @@ ORDER by ??, ??
 
       setIsStatic(!!data.static?.shifts);
 
-      if (!!data?.values?.site_uuid) {
+      if (data?.values?.site_uuid) {
         setSiteUUID(() => data.values.site_uuid);
       }
 
@@ -546,7 +555,7 @@ ORDER by ??, ??
 
           setIsStatic(!!data.static?.shifts);
 
-          if (!!data?.values?.site_uuid) {
+          if (data?.values?.site_uuid) {
             setSiteUUID(() => data.values.site_uuid);
           }
 
@@ -563,7 +572,7 @@ ORDER by ??, ??
       if (sqlConfig?.static?.shifts.length) {
         setShiftOptions(() => processStaticOptions(sqlConfig.static?.shifts));
       } else {
-        setShiftOptions(() => templateSrv.getVariables().find(({ name }) => name === vars.queryShiftsOptions) || null);
+        setShiftOptions(() => templateSrv.getVariables().find(({ name }) => name === vars.queryShiftsOptions) ?? null);
       }
 
       if (!initDateRange) {

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5
+- Fixes for [issue #28](https://github.com/isaozler/grafana-shift-selector/issues/28)
+  - Passing the refresh param after shift change.
+
 ## 0.1.3 - 0.1.4
 
 - Fixes for [issue #16](https://github.com/isaozler/grafana-shift-selector/issues/16)
