@@ -11,6 +11,7 @@ import {
   getTemplateSrv,
   TemplateSrv,
   locationService,
+  FetchResponse,
 } from '@grafana/runtime';
 
 import {
@@ -26,6 +27,9 @@ import {
   vars,
 } from '../types';
 import { dateTimeFormat, getInitGroupUUID, getRelativeDates, startHourIsGreater, transformShiftData, updateActiveShift } from '../utils';
+import { firstValueFrom } from 'rxjs';
+
+type TDataResponse = { data: { results: { shifts_values: { dataframes: DataFrame[] } } } }
 
 let isInitiated = false;
 let refresh: null | string = null
@@ -59,7 +63,7 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
   const [sqlConfig, setSqlConfig] = useState<TSqlConfig | null>(null);
   const [autoSelectShiftGroup, setAutoSelectShiftGroup] = useState<string>(locationService.getSearch().get(vars.queryShiftsGroup) ?? props.options.autoSelectShiftGroup);
 
-  const processShifts = useCallback(({ rowsCount, responseFields }) => {
+  const processShifts = useCallback(({ rowsCount, responseFields }: { rowsCount: number; responseFields: [] }) => {
     return Array.from({ length: rowsCount })
       .reduce((res: any[], _row: any, rowIndex: number) => {
         return [
@@ -83,9 +87,9 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
         ];
       }, []);
   }, []);
-  const processStaticOptions = useCallback((shiftOptions) => {
+  const processStaticOptions = useCallback((shiftOptions: TStaticShift[] | undefined) => {
     const options = {
-      options: shiftOptions.reduce((res: any, item: TStaticShift) => {
+      options: shiftOptions?.reduce((res: any, item: TStaticShift) => {
         return [
           ...res,
           {
@@ -109,7 +113,7 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
       const allAlerts = alerts.filter(({ id }: { id: number }) => alert.id !== id);
       return setAlerts(() => [...allAlerts, alert]);
     },
-    [alerts]
+    [setAlerts, alerts]
   );
   const resetAlert = useCallback(
     (id: number) => {
@@ -191,10 +195,11 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
     },
     [setCustomTimeRange, updateType]
   );
-  const getValues = useCallback(async () => {
+  const getValues = useCallback(async (payload?: TSqlConfig | null) => {
+    let config = payload || sqlConfig;
     try {
-      if (isStatic && sqlConfig?.static?.shifts) {
-        const staticShiftsValues = sqlConfig?.static?.shifts.reduce((res: any[], item: TStaticShift) => {
+      if (isStatic && config?.static?.shifts) {
+        const staticShiftsValues = config?.static?.shifts.reduce((res: any[], item: TStaticShift) => {
           return [
             ...res,
             {
@@ -214,18 +219,22 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
       const db = getBackendSrv();
       const dataSources = getDataSourceSrv().getList() as any;
       const datasourceRef: IVariableModel | null =
-        (templateSrv.getVariables().find(({ name }) => name === vars.varDataModel) as IVariableModel) || null;
+        (templateSrv.getVariables().find(({ name }: { name: string }) => name === vars.varDataModel) as IVariableModel) || null;
 
-      if (!datasourceRef || !sqlConfig) {
-        return setAlertHandler({
-          id: 3,
-          type: 'brandDanger',
-          text: `Error! Missing data source settings please check if your ${vars.varDataModel} and ${vars.queryShiftsOptions} variables are set correctly!`,
-        });
+      if (!datasourceRef || !config) {
+        if (!alerts.find(({ id }) => id === 3)) {
+          return setAlertHandler({
+            id: 3,
+            type: 'brandDanger',
+            text: `Error! Missing data source settings please check if your ${vars.varDataModel} and ${vars.queryShiftsOptions} variables are set correctly!`,
+          });
+        }
+
+        return;
       }
 
       const { id: datasourceId } =
-        dataSources.find(({ name }: { name: string }) => name === datasourceRef.current.value) || {};
+        dataSources.find(({ name, uid }: { name: string, uid: string }) => name === datasourceRef.current.value || uid === datasourceRef.current.value) || {};
 
       if (!datasourceId) {
         return setAlertHandler({
@@ -237,10 +246,10 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
 
       if (
         [
-          ...Object.values(sqlConfig.project.shift_groups),
-          ...Object.values(sqlConfig.project.shifts),
-          ...Object.values(sqlConfig.lookup),
-        ].filter((v) => !!!v).length
+          ...Object.values(config.project.shift_groups),
+          ...Object.values(config.project.shifts),
+          ...Object.values(config.lookup),
+        ].filter((v) => !v).length
       ) {
         return setAlertHandler({
           id: 3,
@@ -249,8 +258,8 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
         });
       }
 
-      const sSchema = sqlConfig.schema.shift_groups ? `${sqlConfig.schema.shift_groups}.` : '';
-      const sgSchema = sqlConfig.schema.shift_groups ? `${sqlConfig.schema.shift_groups}.` : '';
+      const sSchema = config.schema.shift_groups ? `${config.schema.shift_groups}.` : '';
+      const sgSchema = config.schema.shift_groups ? `${config.schema.shift_groups}.` : '';
       const refId = vars.varShiftsValuesName;
       const query = {
         refId,
@@ -263,41 +272,39 @@ ${siteUUID ? 'WHERE ?? = ?' : ''}
 ORDER by ??, ??
 `,
           [
-            `sg.${sqlConfig.project.shift_groups.name}`,
-            `sg.${sqlConfig.project.shift_groups.uuid}`,
-            `s.${sqlConfig.project.shifts.uuid}`,
-            `s.${sqlConfig.project.shifts.start_time}`,
-            `s.${sqlConfig.project.shifts.end_time}`,
-            `s.${sqlConfig.project.shifts.order}`,
-            `${sSchema}${sqlConfig.lookup.shifts}`,
-            `${sgSchema}${sqlConfig.lookup.shift_groups}`,
-            `sg.${sqlConfig.project.shift_groups.uuid}`,
-            `s.${sqlConfig.project.shifts.group_uuid}`,
-            ...(siteUUID ? [`sg.${sqlConfig.project.shift_groups.site_uuid}`, siteUUID] : []),
-            `sg.${sqlConfig.project.shift_groups.name}`,
-            `s.${sqlConfig.project.shifts.order}`,
+            `sg.${config.project.shift_groups.name}`,
+            `sg.${config.project.shift_groups.uuid}`,
+            `s.${config.project.shifts.uuid}`,
+            `s.${config.project.shifts.start_time}`,
+            `s.${config.project.shifts.end_time}`,
+            `s.${config.project.shifts.order}`,
+            `${sSchema}${config.lookup.shifts}`,
+            `${sgSchema}${config.lookup.shift_groups}`,
+            `sg.${config.project.shift_groups.uuid}`,
+            `s.${config.project.shifts.group_uuid}`,
+            ...(siteUUID ? [`sg.${config.project.shift_groups.site_uuid}`, siteUUID] : []),
+            `sg.${config.project.shift_groups.name}`,
+            `s.${config.project.shifts.order}`,
           ]
         ),
         format: 'table',
       };
 
-      const response = ((await db
-        .fetch({
-          url: '/api/ds/query',
-          method: 'post',
-          data: {
-            queries: [query],
-            from: '0',
-            to: '0',
-          },
-        })
-        .toPromise()) as { data: { results: { shifts_values: { dataframes: DataFrame[] } } } }) as any;
+      const response = await firstValueFrom(db.fetch({
+        url: '/api/ds/query',
+        method: 'post',
+        data: {
+          queries: [query],
+          from: '0',
+          to: '0',
+        },
+      })) as unknown as TDataResponse;
 
-      const { data: queries, state } = toDataQueryResponse(response);
+      const { data: queries, state } = toDataQueryResponse(response as FetchResponse);
 
       if (state === LoadingState.Done) {
         const { fields: responseFields } =
-          queries.find((instance) => instance.refId === vars.varShiftsValuesName) || {};
+          queries.find((instance: any) => instance.refId === vars.varShiftsValuesName) || {};
         const [field]: [{ name: string; values: Vector }] = responseFields;
         const rowsCount = field?.values?.toArray().length || 0;
 
@@ -324,7 +331,7 @@ ORDER by ??, ??
       });
       throw error;
     }
-  }, [siteUUID, sqlConfig, isStatic, resetAlert, setAlertHandler, setShiftValues, processShifts, templateSrv]);
+  }, [siteUUID, sqlConfig, isStatic, resetAlert, setAlertHandler, setShiftValues, processShifts, templateSrv, alerts]);
 
   useEffect(() => {
     const dateRange = {
@@ -369,17 +376,11 @@ ORDER by ??, ??
 
   useEffect(() => {
     if (!shiftOptions?.options?.length) {
-      if (shiftOptions?.options?.length === 0) {
+      if (!alerts.find(({ id }) => id === 5)) {
         setAlertHandler({
           id: 5,
           type: 'brandWarning',
-          text: `No shifts available for this site ${siteUUID}`,
-        });
-      } else {
-        setAlertHandler({
-          id: 5,
-          type: 'brandDanger',
-          text: `Error! Please configure the panel variables. For more info see documentation`,
+          text: `No shifts available for this site "${siteUUID}"`,
         });
       }
     } else if (alerts.find(({ id }) => id === 5)) {
@@ -422,18 +423,19 @@ ORDER by ??, ??
   }, [closedAlerts, alerts, shiftOptions, shiftValues, resetAlert, setAlertHandler]);
 
   useEffect(() => {
-    if (sqlConfig) {
+    if ((sqlConfig && siteUUID) || isStatic) {
       getValues();
+    } else if (sqlConfig && !siteUUID && !isStatic && !alerts.find(({ id }) => id === 3)) {
+      getValues(sqlConfig);
     }
-  }, [siteUUID, sqlConfig, getValues]);
+  }, [siteUUID, sqlConfig, getValues, isStatic, alerts]);
 
   useEffect(() => {
     if (isStatic && sqlConfig?.static?.shifts) {
       setShiftOptions(() => processStaticOptions(sqlConfig.static?.shifts));
     } else {
-      setShiftOptions(() =>
-        templateSrv.getVariables().find(({ name }: { name: string }) => name === vars.queryShiftsOptions)
-      );
+      const panelVariables = templateSrv.getVariables()
+      setShiftOptions(panelVariables.find(({ name }: { name: string; }) => name === vars.queryShiftsOptions));
     }
   }, [isStatic, sqlConfig, setShiftOptions, processStaticOptions, templateSrv]);
 
@@ -514,14 +516,13 @@ ORDER by ??, ??
       });
     }
 
-    resetAlert(3);
-
     try {
       const data = JSON.parse(rawSqlData);
 
       setIsStatic(!!data.static?.shifts);
 
       if (data?.values?.site_uuid) {
+        resetAlert(3);
         setSiteUUID(() => data.values.site_uuid);
       }
 
@@ -536,6 +537,8 @@ ORDER by ??, ??
   }, [isDataSourceShifts, var_query_map_dynamic, var_query_map_static, resetAlert, setAlertHandler]);
 
   useEffect(() => {
+    let data: any;
+
     try {
       if (!sqlConfig) {
         const rawSqlData = isDataSourceShifts ? var_query_map_dynamic : var_query_map_static;
@@ -551,7 +554,7 @@ ORDER by ??, ??
         resetAlert(3);
 
         try {
-          const data = JSON.parse(rawSqlData);
+          data = JSON.parse(rawSqlData);
 
           setIsStatic(!!data.static?.shifts);
 
@@ -569,10 +572,10 @@ ORDER by ??, ??
         }
       }
 
-      if (sqlConfig?.static?.shifts.length) {
-        setShiftOptions(() => processStaticOptions(sqlConfig.static?.shifts));
+      if (data?.static?.shifts.length) {
+        setShiftOptions(() => processStaticOptions(data.static?.shifts));
       } else {
-        setShiftOptions(() => templateSrv.getVariables().find(({ name }) => name === vars.queryShiftsOptions) ?? null);
+        setShiftOptions(() => templateSrv.getVariables().find(({ name }: { name: string }) => name === vars.queryShiftsOptions) ?? null);
       }
 
       if (!initDateRange) {

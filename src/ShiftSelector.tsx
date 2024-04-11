@@ -14,7 +14,7 @@ import { useShiftSelectorHook } from './hooks/core';
 import { locationService } from '@grafana/runtime';
 import { ProgressBar } from './components/progressBar';
 
-let refreshT: NodeJS.Timer | null = null;
+let refreshT: number | null = null;
 
 const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
   const [renderCount, setRenderCount] = useState(0);
@@ -122,7 +122,7 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
       refreshT = setInterval(() => {
         props.eventBus.publish({ type: 'refresh', payload: undefined, origin: undefined });
         setRenderCount((d) => d + 1);
-      }, props.options._refreshInterval as unknown as number);
+      }, props.options._refreshInterval as unknown as number) as unknown as number;
     }
 
     return () => {

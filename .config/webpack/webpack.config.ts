@@ -55,6 +55,7 @@ const config = async (env): Promise<Configuration> => ({
     '@grafana/ui',
     '@grafana/runtime',
     '@grafana/data',
+    '@grafana/e2e',
 
     // Mark legacy SDK imports as external if their name starts with the "grafana/" prefix
     ({ request }, callback) => {
@@ -81,7 +82,6 @@ const config = async (env): Promise<Configuration> => ({
           loader: 'swc-loader',
           options: {
             jsc: {
-              baseUrl: './src',
               target: 'es2015',
               loose: false,
               parser: {
