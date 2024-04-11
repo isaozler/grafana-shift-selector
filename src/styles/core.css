@@ -1,4 +1,5 @@
 @import url('//cdn.materialdesignicons.com/5.0.45/css/materialdesignicons.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Kode+Mono:wght@400..700&display=swap');
 
 .react-datepicker-wrapper {
   display: flex !important;
@@ -14,13 +15,15 @@
   aspect-ratio: 1/1;
   border-color: black !important;
   top: 14px !important;
+  height: 7px !important;
 }
 
 .react-datepicker__navigation-icon--next::before {
   width: 14px !important;
   aspect-ratio: 1/1;
   border-color: black !important;
-  top: 14px !important;
+  left: -8px !important;
+  top: 8px !important;
 }
 
 .show-panel-datepicker {
@@ -31,6 +34,18 @@
   height: 30px;
 }
 
+.react-datepicker {
+  font-family: 'Kode Mono', monospace !important;
+}
+
 .react-datepicker-popper {
   z-index: 999 !important;
+}
+
+.react-datepicker-popper[data-placement^=bottom] .react-datepicker__triangle::before {
+  top: 0px !important;
+}
+
+.react-datepicker-popper[data-placement^=bottom] .react-datepicker__triangle::after {
+  top: 1px !important;
 }

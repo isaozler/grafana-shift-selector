@@ -8,6 +8,7 @@ import {
   ShiftButtonsWrapper,
   ShiftButton,
   ShiftLabelSpan,
+  Time,
 } from '../styles/components';
 import {
   EViewType,
@@ -131,7 +132,7 @@ export const ShiftOptions = ({
                       isRealtime={isRealtimeActive}
                     >
                       <ShiftLabelSpan>
-                        {label} {isShowTimeLabel ? <>({timeLabel})</> : <></>}
+                        {label} {isShowTimeLabel ? <Time>({timeLabel})</Time> : <></>}
                       </ShiftLabelSpan>
                     </ShiftButton>
                   );
