@@ -27,7 +27,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@babel/core": "^7.16.7",
-    "@grafana/e2e": "^6.7.6",
+    "@grafana/e2e": "^10.4.2",
     "@grafana/e2e-selectors": "9.3.8",
     "@grafana/eslint-config": "^5.1.0",
     "@grafana/tsconfig": "^1.2.0-rc1",
@@ -45,6 +45,7 @@
     "@types/sqlstring": "^2.3.0",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.1",
+    "eslint-plugin-jsdoc": "^48.2.3",
     "eslint-webpack-plugin": "^3.1.1",
     "fork-ts-checker-webpack-plugin": "^7.2.0",
     "glob": "^10.0.0",
@@ -82,7 +83,7 @@
   },
   "resolutions": {
     "@types/react": "18.2.24",
-    "@types/react-dom": "18.2.24"
-  },
-  "packageManager": "npm@8.5.0"
+    "@types/react-dom": "18.2.24",
+    "eslint-plugin-jsdoc": "^48.2.3"
+  }
 }
