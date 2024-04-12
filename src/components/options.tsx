@@ -8,6 +8,7 @@ import {
   ShiftButtonsWrapper,
   ShiftButton,
   ShiftLabelSpan,
+  Time,
 } from '../styles/components';
 import {
   EViewType,
@@ -41,6 +42,7 @@ export const ShiftOptions = ({
   optionViewType,
   mappings,
   productionDate,
+  isOptionGroupLabelTrimmed,
 }: {
   data: any[];
   setType: datePartOptions;
@@ -54,8 +56,9 @@ export const ShiftOptions = ({
   autoSelectShiftGroup: string | undefined;
   mappings: string;
   productionDate: number;
+  isOptionGroupLabelTrimmed: boolean;
 }) => {
-  const shifts = getShifts(options, optionsData, productionDate);
+  const shifts = getShifts(options, optionsData, productionDate, isOptionGroupLabelTrimmed);
 
   if (!viewType) {
     viewType = EViewType.row;
@@ -131,7 +134,7 @@ export const ShiftOptions = ({
                       isRealtime={isRealtimeActive}
                     >
                       <ShiftLabelSpan>
-                        {label} {isShowTimeLabel ? <>({timeLabel})</> : <></>}
+                        {label} {isShowTimeLabel ? <Time>({timeLabel})</Time> : <></>}
                       </ShiftLabelSpan>
                     </ShiftButton>
                   );

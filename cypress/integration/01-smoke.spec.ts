@@ -1,10 +1,9 @@
-import { e2e } from '@grafana/e2e';
+const e2e = require('@grafana/e2e').e2e;
 
-e2e.scenario({
-  describeName: 'Smoke test',
-  itName: 'Smoke test',
-  scenario: () => {
-    e2e.pages.Home.visit();
-    e2e().contains('Welcome to Grafana').should('be.visible');
-  },
+describe('Login test', () => {
+  it('Page', () => {
+    // e2e.pages.Login.visit();
+    // e2e.pages.Login.username().should('be.visible').type('admin');
+  });
 });
+

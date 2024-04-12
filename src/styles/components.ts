@@ -4,6 +4,11 @@ import { styled } from '@stitches/react';
 const palette: any = config.theme.palette;
 const colors: any = config.theme.colors;
 
+const monoSpaceFont = {
+  fontFamily: '"Kode Mono", monospace',
+  fontWeight: 400,
+}
+
 export const RangeButtonComp = styled('button', {
   width: '30px',
   height: '30px',
@@ -117,6 +122,7 @@ export const ShiftsWrapper = styled('div', {
 });
 
 export const ShiftLabel = styled('span', {
+  ...monoSpaceFont,
   display: 'flex',
   width: '100%',
   maxWidth: '130px',
@@ -133,7 +139,7 @@ export const ShiftLabel = styled('span', {
         maxWidth: '130px',
       }
     },
-  }
+  },
 });
 
 export const ShiftButtonsWrapper = styled('div', {
@@ -214,6 +220,10 @@ export const ShiftButton = styled('button', {
   },
 });
 
+export const Time = styled('span', {
+  ...monoSpaceFont,
+})
+
 export const ShiftLabelSpan = styled('span', {
   display: 'block',
   maxWidth: '100%',
@@ -228,6 +238,7 @@ export const SelectorInputs = styled('div', {
 });
 
 export const ProductionDay = styled('div', {
+  ...monoSpaceFont,
   width: '100%',
   display: 'flex',
   flexDirection: 'row',
@@ -242,12 +253,18 @@ export const ProductionDay = styled('div', {
     flexGrow: 1,
     width: '100%',
     fontWeight: 'bold',
+    lineHeight: '30px',
   },
 
   '.production-day-selector': {
+    ...monoSpaceFont,
     maxWidth: '100px',
     textAlign: 'right',
-    marginRight: '10px',
+    marginRight: '4px',
+    paddingRight: '8px',
+    paddingLeft: '6px',
+    marginLeft: '4px',
+    lineHeight: '30px',
     cursor: 'pointer',
 
     '&:hover': {

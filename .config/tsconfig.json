@@ -8,7 +8,7 @@
   "compilerOptions": {
     "alwaysStrict": true,
     "declaration": false,
-    "rootDir": "../src",
+    "rootDir": "..",
     "baseUrl": "../src",
     "typeRoots": ["../node_modules/@types"],
     "resolveJsonModule": true

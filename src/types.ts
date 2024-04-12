@@ -23,6 +23,7 @@ export type TPropOptions = {
   refreshInterval: string;
   _refreshInterval: string;
   isDataSourceShifts: boolean;
+  isOptionGroupLabelTrimmed: boolean;
   isAutoSelectShift: boolean;
   autoSelectShiftGroup: string;
   isShowDayLabel: boolean;
@@ -145,6 +146,7 @@ export type TUpdateActiveShiftProps = {
   setShiftParams: (shift: TExtendedShift, isManualUpdate?: any) => void;
   autoSelectShiftGroup: string;
   isAutoSelectShift: boolean;
+  isOptionGroupLabelTrimmed: boolean;
   setProductionDate: React.Dispatch<number>;
   productionDate: number;
   shifts: {

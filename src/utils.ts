@@ -111,10 +111,14 @@ export const isCurrentTimeInShiftRange = (shift: ShiftI) => {
   return state;
 };
 
-export const getShifts = (options: Option[], optionsData: any[], productionDate: number) => {
+export const getShifts = (options: Option[], optionsData: any[], productionDate: number, isOptionGroupLabelTrimmed?: boolean) => {
   const hasNextDayShift: boolean = getHasNextDayShift(options, optionsData);
   const shifts: ShiftData = options.reduce((res: any, { text, value: uuid }, index: number) => {
     const data = parseShiftData(uuid, optionsData);
+
+    if (isOptionGroupLabelTrimmed && data?.shiftGroupName) {
+      text = text.replace(data.shiftGroupName, '').trim();
+    }
 
     if (!data) {
       return res;
