@@ -39,6 +39,7 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
   const {
     isAutoSelectShift,
     isDataSourceShifts,
+    isOptionGroupLabelTrimmed,
     var_query_map_dynamic,
     var_query_map_static,
     shiftSelectorPluginPanel,
@@ -459,6 +460,7 @@ ORDER by ??, ??
         setShiftParams,
         autoSelectShiftGroup,
         isAutoSelectShift,
+        isOptionGroupLabelTrimmed,
         shifts: {
           options: shiftOptions.options,
           values: shiftValues,
@@ -475,6 +477,7 @@ ORDER by ??, ??
           setShiftParams,
           autoSelectShiftGroup,
           isAutoSelectShift,
+          isOptionGroupLabelTrimmed,
           shifts: {
             options: shiftOptions.options,
             values: shiftValues,
@@ -496,6 +499,7 @@ ORDER by ??, ??
     setShiftParams,
     autoSelectShiftGroup,
     isAutoSelectShift,
+    isOptionGroupLabelTrimmed,
     shiftOptions,
     shiftValues,
     props.timeRange.from,
@@ -575,7 +579,8 @@ ORDER by ??, ??
       if (data?.static?.shifts.length) {
         setShiftOptions(() => processStaticOptions(data.static?.shifts));
       } else {
-        setShiftOptions(() => templateSrv.getVariables().find(({ name }: { name: string }) => name === vars.queryShiftsOptions) ?? null);
+        const shiftUUIDCountMap = templateSrv.getVariables().find(({ name }: { name: string }) => name === vars.queryShiftsOptions);
+        setShiftOptions(() => shiftUUIDCountMap ?? null);
       }
 
       if (!initDateRange) {

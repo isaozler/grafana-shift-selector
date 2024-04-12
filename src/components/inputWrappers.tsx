@@ -12,6 +12,7 @@ const isDark = config.theme.isDark;
 type TPropInputWrapperOptions = Omit<
   TPropOptions,
   | 'isDataSourceShifts'
+  | 'isOptionGroupLabelTrimmed'
   | 'isAutoSelectShift'
   | 'autoSelectShiftGroup'
   | 'isShowTimeLabel'

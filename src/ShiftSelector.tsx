@@ -38,6 +38,7 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
     isShowRangeButtons,
     isShowProductionDateSelector,
     isProgressbarVisible,
+    isOptionGroupLabelTrimmed,
   } = props.options;
   const {
     resetAlert,
@@ -192,6 +193,7 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
               setShiftParams={setManualShiftParams}
               shiftSelectHandler={shiftSelectHandler}
               isAutoSelectShift={isAutoSelectShift}
+              isOptionGroupLabelTrimmed={isOptionGroupLabelTrimmed}
               autoSelectShiftGroup={autoSelectShiftGroup}
               mappings={var_label_mapping}
               productionDate={productionDate}

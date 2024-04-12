@@ -52,6 +52,14 @@ export const plugin = new PanelPlugin(ShiftSelector).setPanelOptions((builder) =
         rows: 5,
       },
     })
+    .addBooleanSwitch({
+      category: ['Data Mapper'],
+      path: 'isOptionGroupLabelTrimmed',
+      showIf: (c: any) => c.isDataSourceShifts,
+      name: 'Filter shift group names from shift labels',
+      description: 'To fetch all shifts without filtering out overlapping shift names, you could concatenate shift option labels with the group name. This option allows you to filter the group name from the labels. You won\'t get the warning message of missing redundant shifts.',
+      defaultValue: false,
+    })
     .addTextInput({
       category: ['Data Mapper'],
       path: 'var_query_map_static',
