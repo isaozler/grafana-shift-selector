@@ -104,6 +104,10 @@ jobs:
           go install
           popd
           plugincheck2 -config ./plugin-validator/config/default.yaml ${{ steps.metadata.outputs.archive }}
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "~1.21"
+          check-latest: true
 
       - name: Create Github release
         uses: softprops/action-gh-release@v1
