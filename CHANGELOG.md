@@ -1,6 +1,7 @@
 # Changelog
 
-## 0.1.5
+## 0.1.6
+- Release workfile updated for updated Grafana signing flow
 - Fixes for [issue #28](https://github.com/isaozler/grafana-shift-selector/issues/33)
   - With Grafana version 10, the plug-in was failing to retrieve and set the shifts and options correctly due to changes in the fetch API
 - Fix for [issue #26](https://github.com/isaozler/grafana-shift-selector/issues/26)
