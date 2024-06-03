@@ -614,10 +614,6 @@ ORDER by ??, ??
     dateRange,
   ]);
 
-  useEffect(() => {
-    console.log({ isStatic })
-  }, [isStatic])
-
   return {
     resetAlert,
 
