@@ -14,7 +14,8 @@
     "test": "jest --watch --onlyChanged",
     "test:ci": "jest --passWithNoTests --maxWorkers 4",
     "typecheck": "tsc --noEmit",
-    "build-check": "npm run typecheck && npm run lint && npm run test:ci && npm run build"
+    "build-check": "npm run typecheck && npm run lint && npm run test:ci && npm run build",
+    "release-check": "npm ci && npm run typecheck && npm run lint && npm run test:ci && npm run build npm run e2e && npm run sign"
   },
   "homepage": "https://github.com/isaozler/grafana-shift-selector",
   "bugs": "https://github.com/isaozler/grafana-shift-selector/issues",

@@ -7,6 +7,8 @@
 - Fix for [issue #26](https://github.com/isaozler/grafana-shift-selector/issues/26)
   - The useEffect was triggered without checking if the warning wasn't already set.
 - Packages updated
+- Static data bug fix
+- Grafana version upgrade (11.0.0)
 
 ## 0.1.5
 - Fixes for [issue #28](https://github.com/isaozler/grafana-shift-selector/issues/28)

@@ -381,7 +381,7 @@ ORDER by ??, ??
         setAlertHandler({
           id: 5,
           type: 'brandWarning',
-          text: `No shifts available for this site "${siteUUID}"`,
+          text: siteUUID ? `No shifts available for site "${siteUUID}"` : "No shifts available for this site",
         });
       }
     } else if (alerts.find(({ id }) => id === 5)) {
@@ -574,10 +574,8 @@ ORDER by ??, ??
             text: `Error! Invalid shift mapping. Please checkout your "Data Mapper" panel and provide a valid mapping! See the documentation for more info!`,
           });
         }
-      }
-
-      if (data?.static?.shifts.length) {
-        setShiftOptions(() => processStaticOptions(data.static?.shifts));
+      } else if (sqlConfig?.static?.shifts.length) {
+        setShiftOptions(() => processStaticOptions(sqlConfig.static?.shifts));
       } else {
         const shiftUUIDCountMap = templateSrv.getVariables().find(({ name }: { name: string }) => name === vars.queryShiftsOptions);
         setShiftOptions(() => shiftUUIDCountMap ?? null);
@@ -615,6 +613,10 @@ ORDER by ??, ??
     siteUUID,
     dateRange,
   ]);
+
+  useEffect(() => {
+    console.log({ isStatic })
+  }, [isStatic])
 
   return {
     resetAlert,
