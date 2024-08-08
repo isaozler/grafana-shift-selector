@@ -115,6 +115,14 @@ export const plugin = new PanelPlugin(ShiftSelector).setPanelOptions((builder) =
       description: 'This gives you the ability to track the shifts in real-time',
       defaultValue: false,
     })
+    .addBooleanSwitch({
+      category: ['Behavior'],
+      path: 'isAutoChangeEndToNow',
+      showIf: (c: any) => c.isAutoSelectShift,
+      name: 'Change the end of time-range to now',
+      description: 'This will seek the current end of the time-range to now instead of ending shift time',
+      defaultValue: true,
+    })
     .addTextInput({
       category: ['Behavior'],
       path: 'autoSelectShiftGroup',
