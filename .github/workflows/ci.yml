@@ -31,14 +31,23 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Start grafana docker
-        run: docker-compose up -d
+      - name: Start Grafana Docker container
+        run: |
+          docker network create grafana-network || true
+          docker run -d \
+            --name=grafana \
+            --network=grafana-network \
+            -p 3000:3000 \
+            grafana/grafana
 
       - name: Run e2e tests
         run: npm run e2e
 
-      - name: Stop grafana docker
-        run: docker-compose down
+      - name: Stop and remove Grafana Docker container
+        run: |
+          docker stop grafana
+          docker rm grafana
+          docker network rm grafana-network
 
       - name: Check for backend
         id: check-for-backend
