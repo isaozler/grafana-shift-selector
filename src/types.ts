@@ -25,6 +25,7 @@ export type TPropOptions = {
   isDataSourceShifts: boolean;
   isOptionGroupLabelTrimmed: boolean;
   isAutoSelectShift: boolean;
+  isAutoChangeEndToNow: boolean;
   autoSelectShiftGroup: string;
   isShowDayLabel: boolean;
   isShowTimeLabel: boolean;
@@ -136,6 +137,7 @@ export enum vars {
   varQueryMapper = 'var_query_map',
   varDataModel = 'var_shifts_dataModel',
   varShiftsValuesName = 'shifts_values',
+  varEndDate = 'var-end_date',
 }
 
 export type TMappings = {
@@ -146,6 +148,7 @@ export type TUpdateActiveShiftProps = {
   setShiftParams: (shift: TExtendedShift, isManualUpdate?: any) => void;
   autoSelectShiftGroup: string;
   isAutoSelectShift: boolean;
+  isAutoChangeEndToNow: boolean;
   isOptionGroupLabelTrimmed: boolean;
   setProductionDate: React.Dispatch<number>;
   productionDate: number;

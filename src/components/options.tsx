@@ -52,6 +52,7 @@ export const ShiftOptions = ({
   setShiftParams: (shift: ShiftI, isManualUpdate?: any) => void;
   shiftSelectHandler: typeof utilShiftSelectHandler;
   isAutoSelectShift: boolean;
+  isAutoChangeEndToNow: boolean;
   isShowTimeLabel: boolean;
   autoSelectShiftGroup: string | undefined;
   mappings: string;

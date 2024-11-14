@@ -38,6 +38,7 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
   const { data: _data, width, height, timeRange, eventBus } = props;
   const {
     isAutoSelectShift,
+    isAutoChangeEndToNow,
     isDataSourceShifts,
     isOptionGroupLabelTrimmed,
     var_query_map_dynamic,
@@ -140,7 +141,7 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
       const { startDate, endDate } = shift || {};
 
       const from = startDate.unix() * 1000;
-      const to = endDate.unix() * 1000;
+      const to = isAutoChangeEndToNow ? 'now' : endDate.unix() * 1000;
 
       if (isAutoSelectShift && isManualUpdate) {
         return setAlertHandler({
@@ -157,8 +158,9 @@ export const useShiftSelectorHook = (props: PanelProps<TPropOptions>) => {
           uuid: shift.uuid,
         }));
       }
+      locationSrv.partial({[vars.varEndDate]: endDate.toISOString()}, false);
     },
-    [isAutoSelectShift, setAlertHandler, setCustomTimeRange]
+    [isAutoSelectShift, setAlertHandler, setCustomTimeRange, isAutoChangeEndToNow, locationSrv]
   );
   const setManualShiftParams = useCallback(
     (shift: TExtendedShift, productionDate: number) => {
@@ -357,7 +359,7 @@ ORDER by ??, ??
 
       const query = {
         from: isSwapDates ? to : from,
-        to: isSwapDates ? from : to,
+        to: isSwapDates ? from : (isAutoChangeEndToNow ? 'now' : to),
         [vars.queryShiftsGroup]: autoSelectShiftGroup,
         [vars.queryShiftsOptions]: uuid,
         refresh: _refresh,
@@ -365,7 +367,7 @@ ORDER by ??, ??
 
       locationSrv.partial(query, false);
     }
-  }, [locationSrv, customTimeRange, timeRange.to, timeRange.from, getRefreshRate, setInitDateRange, autoSelectShiftGroup, isAutoSelectShift]);
+  }, [locationSrv, customTimeRange, timeRange.to, timeRange.from, getRefreshRate, setInitDateRange, autoSelectShiftGroup, isAutoSelectShift, isAutoChangeEndToNow]);
 
   useEffect(() => {
     if (width < 400) {
@@ -460,6 +462,7 @@ ORDER by ??, ??
         setShiftParams,
         autoSelectShiftGroup,
         isAutoSelectShift,
+        isAutoChangeEndToNow,
         isOptionGroupLabelTrimmed,
         shifts: {
           options: shiftOptions.options,
@@ -477,6 +480,7 @@ ORDER by ??, ??
           setShiftParams,
           autoSelectShiftGroup,
           isAutoSelectShift,
+          isAutoChangeEndToNow,
           isOptionGroupLabelTrimmed,
           shifts: {
             options: shiftOptions.options,
@@ -499,6 +503,7 @@ ORDER by ??, ??
     setShiftParams,
     autoSelectShiftGroup,
     isAutoSelectShift,
+    isAutoChangeEndToNow,
     isOptionGroupLabelTrimmed,
     shiftOptions,
     shiftValues,

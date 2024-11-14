@@ -28,6 +28,7 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
     isShowDayLabel,
     isShowTimeLabel,
     isAutoSelectShift,
+    isAutoChangeEndToNow,
     dayLabel,
     rangeLabelType,
     shiftOptionsLabelType,
@@ -193,6 +194,7 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
               setShiftParams={setManualShiftParams}
               shiftSelectHandler={shiftSelectHandler}
               isAutoSelectShift={isAutoSelectShift}
+              isAutoChangeEndToNow={isAutoChangeEndToNow}
               isOptionGroupLabelTrimmed={isOptionGroupLabelTrimmed}
               autoSelectShiftGroup={autoSelectShiftGroup}
               mappings={var_label_mapping}
