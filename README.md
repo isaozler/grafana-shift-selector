@@ -7,15 +7,15 @@ On this page we'll show you how it works and how you can adjust the displayed sh
 
 ![Shift selector](https://raw.githubusercontent.com/isaozler/grafana-shift-selector/main/img/doc/shift_selector_default.png)
 
-# Realtime Shift Track feature (*new feature**)
+# Realtime Shift Track feature (\*new feature\*\*)
 
 With this new feature, you can enable the shift selector to track shifts automatically based on the local time. So you don't need to change shifts manually. To use this new feature, you need to enable it through the panel options.
 
-* Enable the `"Real-time shift auto-select"`
-* Determine a `refresh interval` (these should be according to the time interval pattern of Grafana. Eg. for 5 seconds -> `5s`, 1 hour -> `1h`)
-* Optionally, if you have multiple groups, determine a group to auto-select from. It uses the `group_uuid`
+- Enable the `"Real-time shift auto-select"`
+- Determine a `refresh interval` (these should be according to the time interval pattern of Grafana. Eg. for 5 seconds -> `5s`, 1 hour -> `1h`)
+- Optionally, if you have multiple groups, determine a group to auto-select from. It uses the `group_uuid`
 
-*Be aware that enabling real-time will hide the date and range selectors*
+_Be aware that enabling real-time will hide the date and range selectors_
 
 ![Shift selector Realtime](https://raw.githubusercontent.com/isaozler/grafana-shift-selector/main/img/doc/shift_selector_realtime.png)
 
@@ -82,6 +82,7 @@ Now you are able to see the shifts in two groups. `Group 1` and `Group 2`. This 
 In order to set you shifts from a datasource please continue to read.
 
 # Shifts from datasources
+
 ## Functionalities
 
 The options you can choose are: (from left to right)

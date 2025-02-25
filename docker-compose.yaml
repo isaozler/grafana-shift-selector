@@ -6,9 +6,24 @@ services:
     build:
       context: ./.config
       args:
-        grafana_version: ${GRAFANA_VERSION:-11.0.0}
+        grafana_version: ${GRAFANA_VERSION:-latest}
     ports:
       - 3000:3000/tcp
     volumes:
       - ./dist:/var/lib/grafana/plugins/isaozler-shiftselector-panel
       - ./provisioning:/etc/grafana/provisioning
+      - ./.config/data/grafana:/var/lib/grafana
+      - ./.config/docker/grafana.ini:/etc/grafana/grafana.ini
+
+  mysql:
+    image: mysql:latest
+    volumes:
+      - ./config/docker/mysql-data/db:/var/lib/mysql
+    hostname: host.docker.internal
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: grafana
+      MYSQL_USER: grafana
+      MYSQL_PASSWORD: password

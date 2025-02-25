@@ -1,0 +1,14 @@
+FROM mysql:5.7
+
+WORKDIR /var/lib/mysql
+
+USER mysql
+
+ENV MYSQL_ROOT_PASSWORD=root
+ENV MYSQL_DATABASE=grafana
+ENV MYSQL_USER=grafana
+ENV MYSQL_PASSWORD=password
+
+EXPOSE 3306
+
+CMD ["mysqld"]

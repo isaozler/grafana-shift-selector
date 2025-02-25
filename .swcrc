@@ -6,10 +6,7 @@
     },
     "baseUrl": "./src",
     "paths": {
-      "*": [
-        "node_modules",
-        "src/*"
-      ]
+      "*": ["node_modules", "src/*"]
     }
   }
 }

@@ -6,4 +6,3 @@ describe('Login test', () => {
     // e2e.pages.Login.username().should('be.visible').type('admin');
   });
 });
-

@@ -7,7 +7,7 @@ const colors: any = config.theme.colors;
 const monoSpaceFont = {
   fontFamily: '"Kode Mono", monospace',
   fontWeight: 400,
-}
+};
 
 export const RangeButtonComp = styled('button', {
   width: '30px',
@@ -137,7 +137,7 @@ export const ShiftLabel = styled('span', {
       },
       row: {
         maxWidth: '130px',
-      }
+      },
     },
   },
 });
@@ -222,13 +222,13 @@ export const ShiftButton = styled('button', {
 
 export const Time = styled('span', {
   ...monoSpaceFont,
-})
+});
 
 export const ShiftLabelSpan = styled('span', {
   display: 'block',
   maxWidth: '100%',
   overflow: 'hidden',
-})
+});
 
 export const SelectorInputs = styled('div', {
   flexDirection: 'column',
