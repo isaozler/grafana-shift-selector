@@ -18,7 +18,7 @@ services:
   mysql:
     image: mysql:latest
     volumes:
-      - ./config/docker/mysql-data/db:/var/lib/mysql
+      - ./.config/docker/mysql-data/db:/var/lib/mysql
     hostname: host.docker.internal
     ports:
       - '3306:3306'
