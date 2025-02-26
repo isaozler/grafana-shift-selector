@@ -31,20 +31,20 @@ export const DebugShiftGroupTable = styled('div', {
 });
 
 export const DebugShiftTable = styled('div', {
-  padding: 4,
+  padding: 8,
   border: 'solid 1px green',
   marginBottom: 4,
   fontSize: 9,
   variants: {
     isActive: {
       true: {
-        backgroundColor: 'red',
+        backgroundColor: 'rgba(255, 0,0, 0.5)',
         color: 'white',
       },
     },
     isClosest: {
       true: {
-        backgroundColor: 'black',
+        backgroundColor: 'purple',
         color: 'white',
       },
     },

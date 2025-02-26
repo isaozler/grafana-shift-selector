@@ -1,21 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { TShiftGroupedData } from '../../types/shifts';
+import React from 'react';
 import { DebugShiftTable as ShiftTable, DebugShiftGroupTable as ShiftGroupTable } from '../../styles/debug';
-import { useStoreState, useSubscribe } from '../../store/hook';
-// import { useSelector } from 'react-redux';
-import { store, TState } from '../../store/reducer/shift';
-import { useProps } from '../../store/hooks/props';
+import { useStore } from '../../store';
 
-export const DebugShiftTable = ({ data }: { data: TShiftGroupedData | null }) => {
-  const { getState } = useProps();
-
-  console.log('SHIDFTS COMPONENT UPDATE', { state: getState() });
+export const DebugShiftTable = () => {
+  const { shifts } = useStore();
 
   return (
     <>
-      {data && Object.keys(data).length ? (
+      {shifts && Object.keys(shifts).length ? (
         <div>
-          {Object.values(data).map(({ uuid, label, hasMultipleActiveShifts }) => (
+          {Object.values(shifts).map(({ uuid, label, hasMultipleActiveShifts }) => (
             <ShiftGroupTable key={uuid}>
               <div>
                 <div>Group Label: {label}</div>
@@ -23,7 +17,7 @@ export const DebugShiftTable = ({ data }: { data: TShiftGroupedData | null }) =>
                 <div>Multiple Active: {hasMultipleActiveShifts ? 'true' : 'false'}</div>
               </div>
               <div>
-                {data[uuid].shifts.map((shift) => (
+                {shifts[uuid]?.shifts.map((shift) => (
                   <ShiftTable key={shift.uuid} isActive={shift.isActive} isClosest={shift.isClosest}>
                     {Object.keys(shift).map((shiftKey) =>
                       typeof (shift as any)[shiftKey] === 'string' || typeof (shift as any)[shiftKey] === 'number' ? (

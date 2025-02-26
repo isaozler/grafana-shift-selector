@@ -23,9 +23,7 @@ type TBuilderFunctions = (
 
 const constructBuilder = (builder: PanelOptionsEditorBuilder<TPropOptions>, ...functions: TBuilderFunctions[]) => {
   return functions.reduce((currentBuilder, fn) => {
-    const globalPropsState = processGlobalProps(globalData)
-
-    
+    const globalPropsState = processGlobalProps(globalData);
 
     return fn(currentBuilder, globalPropsState);
   }, builder);

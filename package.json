@@ -6,16 +6,18 @@
   "scripts": {
     "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
     "dev": "webpack -w -c ./.config/webpack/webpack.config.ts --env development",
-    "e2e": "npm exec cypress install && npm exec grafana-e2e run",
-    "e2e:update": "npm exec cypress install && npm exec grafana-e2e run --update-screenshots",
-    "lint": "eslint --cache --ignore-path ./.gitignore --ext .js,.jsx,.ts,.tsx .",
-    "lint:fix": "npm run lint --fix && prettier --write .",
+    "e2e": "pnpm run /^e2e:.*/",
+    "e2e:install": "npm exec cypress install",
+    "e2e:grafana-e2e": "npm exec grafana-e2e run",
+    "e2e:update": "npm exec grafana-e2e run --update-screenshots",
+    "lint": "pnpm run /^lint:.*/",
+    "lint:eslint": "eslint --cache --ignore-path ./.gitignore --ext .js,.jsx,.ts,.tsx . --fix",
+    "lint:prettier": "prettier --write .",
     "server": "docker-compose up --build",
     "sign": "npx --yes @grafana/sign-plugin@latest",
-    "test": "jest --watch --onlyChanged",
-    "vitest": "vitest",
-    "vitest-coverage": "vitest run --coverage",
-    "test:ci": "jest --passWithNoTests --maxWorkers 4",
+    "vitest": "pnpm run /^vitest:.*/",
+    "vitest:init": "vitest",
+    "vitest:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "build-check": "npm run typecheck && npm run lint && npm run test:ci && npm run build",
     "release-check": "npm ci && npm run typecheck && npm run lint && npm run test:ci && npm run build npm run e2e && npm run sign"
@@ -91,7 +93,8 @@
     "react-dom": "19.0.0",
     "rxjs": "^7.8.1",
     "sqlstring": "^2.3.3",
-    "tslib": "2.5.0"
+    "tslib": "2.5.0",
+    "zustand": "^5.0.3"
   },
   "resolutions": {
     "@types/react": "19.0.0",

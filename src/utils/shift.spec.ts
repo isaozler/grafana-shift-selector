@@ -298,11 +298,10 @@ describe('Shift Processes', () => {
     const _nightShift = shifts?.find(({ uuid }) => uuid === 'shift_uuid_3');
     const _nightShift2 = shifts?.find(({ uuid }) => uuid === 'shift_uuid_6');
     const _nightShift3 = shifts?.find(({ uuid }) => uuid === 'shift_uuid_7');
-    const _closestShift = shifts?.find(({ isActive, isClosest }) => isActive && isClosest);
+    const _closestShift = shifts?.find(({ isClosest }) => isClosest);
 
     expect(propOptions.state?.shifts.data?.[groupUUID].hasMultipleActiveShifts).toBeTruthy();
     expect(propOptions.state?.shifts.data?.[groupUUID].activeShift).toBe(_closestShift?.uuid);
-
     expect(_morningShift1?.isActive).toBeFalsy();
     expect(_morningShift1?.prevEnd).toBeUndefined();
     expect(_morningShift2?.isActive).toBeFalsy();

@@ -19,6 +19,21 @@ export const parseStaticData = (options: TPropOptions): TShiftGroupedData | null
   }
 };
 
+export const parseDynamicData = (rawData: TRawStaticShift[], options: TPropOptions): TShiftGroupedData | null => {
+  try {
+    let data = groupShiftsByGroup(rawData, options.settings.dataSource.filter, options);
+
+    if (options.settings?.time?.isEndToNow) {
+      data = disableUpcomingShifts(data, options);
+    }
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
 const disableUpcomingShifts = (data: TShiftGroupedData, options: TPropOptions): TShiftGroupedData => {
   return Object.keys(data).reduce((res, groupKey) => {
     return {

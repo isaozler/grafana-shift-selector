@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
-import { useShift } from '../../../hooks/panel/useShift';
-import { Accordion } from './accordion';
+import React from 'react';
 import { ThemeProvider } from '../../themeProvider';
+import { useStore } from '../../../store';
 
 export const ShiftConfigurator = ({
   id,
@@ -13,24 +12,7 @@ export const ShiftConfigurator = ({
   onChange: (value: string) => void;
 }) => {
   const stateRef = React.useRef<HTMLInputElement>(null);
-  const {
-    dispatchers: {
-      setShifts,
-    },
-    states: { shifts, groupUUIDs },
-  } = useShift();
-
-  useEffect(() => {
-    try {
-      if (value) {
-        console.log(value)
-        const parsedValue = JSON.parse(value);
-        setShifts(parsedValue);
-      }
-    } catch (e) {
-      console.error('Error parsing shifts', { value, error: e });
-    }
-  }, [setShifts, value]);
+  const { setShifts } = useStore();
 
   return (
     <ThemeProvider>
@@ -39,15 +21,17 @@ export const ShiftConfigurator = ({
           ref={stateRef}
           type="text"
           id={id}
-          value={JSON.stringify(shifts)}
-          onChange={(e) => {
-            onChange(e.target.value);
-            console.log('CHANGED >>> ', { value: e.target.value });
+          defaultValue={value}
+          onBlur={(e) => {
+            try {
+              const data = JSON.parse(e.target.value);
+              setShifts(data);
+              onChange(JSON.stringify(data));
+            } catch (error) {
+              console.error(error);
+            }
           }}
         />
-        {groupUUIDs.map((groupUUID) => (
-          <Accordion key={groupUUID} groupUUID={groupUUID} />
-        ))}
       </div>
     </ThemeProvider>
   );

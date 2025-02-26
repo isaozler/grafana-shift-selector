@@ -14,6 +14,8 @@ const setTimeSettings = (options: TPropOptions): TPropOptions['settings']['time'
 export const processProps = (options: TPropOptions): TPropOptions => {
   if (!options.ui.element.date.input.isVisible) {
     options.ui.element.date.input.value = '';
+  } else {
+    options.ui.element.date.input.value = options.ui.element.date.input.value || formatToDate();
   }
 
   options.settings.time = setTimeSettings(options);

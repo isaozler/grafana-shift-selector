@@ -163,6 +163,10 @@ export const isUpcomingShift = (
 };
 
 export function sortShifts<T>(shifts: T[], sortKey: keyof T): T[] {
+  if (!shifts.length) {
+    return shifts;
+  }
+
   return shifts.sort((a, b) => {
     const aStart = a as unknown as T & { order: number };
     const bStart = b as unknown as T & { order: number };
@@ -195,6 +199,10 @@ export const compareNumbersWithAlts = (a: TShiftSortNumbers, b: TShiftSortNumber
 };
 
 export const markClosestActiveShift = (shifts: TShift[], currentTime: TTimeObject | null): TShift[] => {
+  if (shifts.length <= 1) {
+    return shifts;
+  }
+
   currentTime = currentTime || getTimeObject(new Date());
   const firstActiveShiftIndex = shifts.findIndex(({ isActive }) => isActive);
   const currentUnix = timeObjectToUnix(currentTime);
@@ -226,7 +234,30 @@ export const markClosestActiveShift = (shifts: TShift[], currentTime: TTimeObjec
     return closestIndex;
   }, firstActiveShiftIndex);
 
-  if (closestShiftIndex >= 0) {
+  const activeShifts = shifts.filter(({ isActive }) => isActive);
+
+  if (activeShifts.length > 1) {
+    activeShifts.sort((a, b) => {
+      if (a.end && b.end && a.start && b.start) {
+        const aEnd = timeObjectToUnix(a.end, { isNextDay: a.isNextDay });
+        const bEnd = timeObjectToUnix(b.end, { isNextDay: b.isNextDay });
+        const aStart = timeObjectToUnix(a.start);
+        const bStart = timeObjectToUnix(b.start);
+
+        if (aEnd !== bEnd) {
+          return aEnd - bEnd;
+        }
+
+        return bStart - aStart;
+      }
+
+      return 0;
+    });
+
+    const closestActiveShift = activeShifts[0];
+    const closestActiveShiftIndex = shifts.findIndex(({ uuid }) => uuid === closestActiveShift.uuid);
+    shifts[closestActiveShiftIndex].isClosest = true;
+  } else if (closestShiftIndex >= 0) {
     shifts[closestShiftIndex].isClosest = true;
   }
 

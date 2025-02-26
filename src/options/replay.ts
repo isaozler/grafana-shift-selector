@@ -54,7 +54,7 @@ export const options = (builder: PanelOptionsEditorBuilder<TPropOptions>, global
       path: 'ui.element.replay.maxTime.value',
       name: 'Additional Time',
       description: sliderDescription,
-      settings: changeMaxTimeSettings(globalData.options?.ui?.element?.replay?.time?.unit || 'hours'),
+      settings: changeMaxTimeSettings(globalData.options?.ui?.element?.replay?.time?.unit ?? 'hours'),
     })
     .addCustomEditor({
       category,

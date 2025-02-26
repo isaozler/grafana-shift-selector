@@ -1,4 +1,4 @@
-import React, { createContext, ReactElement, useContext, useMemo } from 'react';
+import React, { createContext, ReactElement, useContext, useEffect, useMemo } from 'react';
 import { createStitches } from '@stitches/react';
 import { useTheme2, useTheme } from '@grafana/ui';
 import { flattenKeysWithValues } from '../utils/panels/global';
@@ -29,14 +29,6 @@ export const ThemeProvider = ({ children }: { children: ReactElement<any, any> }
   const grafanaTheme = useTheme();
   const grafanaTheme2 = useTheme2();
 
-  console.log({
-    theme: {
-      ...flattenKeysWithValues(grafanaTheme.colors),
-    },
-    theme2: {
-      ...flattenKeysWithValues(grafanaTheme2.colors),
-    },
-  });
   const utils = useMemo(() => {
     return {
       colors: {
@@ -87,6 +79,17 @@ export const ThemeProvider = ({ children }: { children: ReactElement<any, any> }
     }),
     [stitchesTheme.styled, utils, grafanaTheme.colors, grafanaTheme2.colors]
   );
+
+  useEffect(() => {
+    console.log({
+      theme: {
+        ...flattenKeysWithValues(grafanaTheme.colors),
+      },
+      theme2: {
+        ...flattenKeysWithValues(grafanaTheme2.colors),
+      },
+    });
+  }, [grafanaTheme, grafanaTheme2]);
 
   return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;
 };

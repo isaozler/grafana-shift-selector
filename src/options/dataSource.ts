@@ -33,7 +33,7 @@ export const options = (builder: PanelOptionsEditorBuilder<TPropOptions>) => {
       path: 'settings.dataSource.static.data',
       name: 'Static Shifts Configurator',
       description: 'Configure your static shifts data',
-      defaultValue: /* JSON.stringify(
+      defaultValue: JSON.stringify(
         [
           {
             group: 'Group 1 eg. Summer',
@@ -65,10 +65,10 @@ export const options = (builder: PanelOptionsEditorBuilder<TPropOptions>) => {
         ],
         null,
         4
-      ), */
-      null,
+      ),
       editor: (props) => {
         const { value, onChange } = props;
+        // debugger
         return ShiftConfigurator({ id: 'shiftStaticData', value, onChange });
       },
     });

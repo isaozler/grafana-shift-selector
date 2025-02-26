@@ -1,8 +1,16 @@
 import { getBackendSrv, getDataSourceSrv, getTemplateSrv, TemplateSrv } from '@grafana/runtime';
 import { firstValueFrom } from 'rxjs';
-import { IVariableModel, ShiftI, TDataResponse, TDbQuery, TSqlConfig, vars } from '../types';
-import { DataSourceInstanceSettings, DataSourceJsonData, TimeRange } from '@grafana/data';
+import { IVariableModel, ShiftI, TDataResponse, TDbQuery, TPropOptions, TSqlConfig, vars } from '../types';
+import {
+  DataFrameJSON,
+  dataFrameToJSON,
+  DataSourceInstanceSettings,
+  DataSourceJsonData,
+  PanelData,
+  TimeRange,
+} from '@grafana/data';
 import sqlstring from 'sqlstring';
+import { TRawStaticShift, TShift } from '../types/shifts';
 
 export const loadDbData = async ({ query }: { query: TDbQuery }): Promise<TDataResponse['data'] | null> => {
   try {
@@ -135,3 +143,55 @@ export const getDataSource = (): {
     datasourceRef,
   };
 };
+
+export const getFlatData = (jsonData: DataFrameJSON) => {
+  const { schema, data } = jsonData ?? {};
+
+  if (!schema || !data) {
+    return [];
+  }
+
+  const { fields } = schema;
+  const { values } = data;
+  const result: any[] = [];
+  const rowCount = values[0].length;
+
+  for (let i = 0; i < rowCount; i++) {
+    let rowObject: any = {};
+
+    fields.forEach((field, index) => (rowObject[field.name] = values[index][i]));
+    result.push(rowObject);
+  }
+
+  return result;
+};
+
+export function mapResponseData(response: DataFrameJSON[], options: TPropOptions) {
+  const [firstDataSource] = response;
+  let flatData = getFlatData(firstDataSource);
+
+  if (options.db.table.filter.column.name && options.db.table.filter.column.value) {
+    flatData = flatData.filter(
+      (row: any) => row[options.db.table.filter.column.name] === options.db.table.filter.column.value
+    );
+  }
+
+  return flatData.reduce((res, shift: any) => {
+    return [
+      ...res,
+      {
+        uuid: shift[options.db.table.shifts.columns.uuid],
+        label: shift[options.db.table.shifts.columns.name],
+        order: shift[options.db.table.shifts.columns.order],
+        startTime: shift[options.db.table.shifts.columns.start_time],
+        endTime: shift[options.db.table.shifts.columns.end_time],
+        group: shift[options.db.table.shift_groups.columns.name],
+        group_uuid: shift[options.db.table.shift_groups.columns.uuid],
+      },
+    ];
+  }, [] as TShift[]);
+}
+
+export function transformGrafanaResponse(props: PanelData, options: TPropOptions): TRawStaticShift[] {
+  return mapResponseData(props.series.map(dataFrameToJSON).flat(), options);
+}

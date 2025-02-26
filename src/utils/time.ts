@@ -32,7 +32,7 @@ export const getDateByTimeObject = (currentTime: TTimeObject): Date => {
 };
 
 export const getTimeNowObject = (options: TPropOptions): TTimeObject => {
-  if (!!options.ui.element.time.input.value) {
+  if (options.ui.element.time.input.value && options.ux.time.isFixed) {
     const inputTime = parseTime(options.ui.element.time.input.value as TTimeString);
 
     if (inputTime) {
@@ -48,7 +48,8 @@ export const setCurrentDateTime = (options: TPropOptions, currentDateTime = new 
 
   const time = stringifyTime(options.settings.time.current) as string;
 
-  options.ui.element.time.input.value = time as string;
+  options.ui.element.time.input.value = time;
+  options.ux.time.isFixed = true;
   return options;
 };
 
