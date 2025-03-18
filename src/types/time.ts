@@ -4,6 +4,7 @@ export type TTimeObject = {
 };
 
 export type TUnixTimeOptions = {
+  date?: Date;
   isNextDay?: boolean;
   isPrevDay?: boolean;
 };

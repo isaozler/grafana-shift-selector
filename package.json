@@ -51,6 +51,7 @@
     "@types/react-dom": "18.2.24",
     "@types/sqlstring": "^2.3.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "@vitest/coverage-istanbul": "^3.0.9",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.1",
     "eslint-plugin-jsdoc": "^48.2.3",

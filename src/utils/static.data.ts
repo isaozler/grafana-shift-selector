@@ -41,10 +41,7 @@ const disableUpcomingShifts = (data: TShiftGroupedData, options: TPropOptions): 
       [groupKey]: {
         ...data[groupKey],
         shifts: data[groupKey].shifts.map((shift) => {
-          if (
-            !shift.isActive &&
-            isUpcomingShift(data[groupKey] as TShiftGroupedData['uuid'], shift, options.settings.time.current)
-          ) {
+          if (!shift.isActive && isUpcomingShift(data[groupKey], shift, options.settings.time.current)) {
             return {
               ...shift,
               isDisabled: true,
@@ -94,40 +91,41 @@ const groupShiftsByGroup = (
     return acc;
   }, {} as TShiftGroupedData);
 
-  return Object.keys(shiftGroup).reduce((acc, groupUUID) => {
-    let shiftGroupData = setShiftStates(shiftGroup[groupUUID], options);
-    let activeShiftData: TShift | null = null;
-    let activeShift: TShift['uuid'] | null = null;
-
-    if (shiftGroupData.hasMultipleActiveShifts) {
-      activeShiftData = shiftGroupData.shifts.find(({ isActive, isClosest }) => isActive && isClosest) ?? null;
-    } else {
-      activeShiftData = shiftGroupData.shifts.find(({ isActive }) => isActive) ?? null;
-    }
-
-    activeShift = activeShiftData?.uuid ?? null;
-
-    shiftGroupData = {
-      ...shiftGroupData,
-      shifts: shiftGroupData.shifts.map((shift) => {
-        if (shift?.isActive && options.settings.time?.isEndToNow) {
-          if (options.ui.element.time.input.value) {
-            shift.end = options.settings.time.current;
-          } else {
-            shift.end = getTimeObject();
-          }
-        }
-
-        return shift;
-      }),
-    };
-
-    return {
-      ...acc,
-      [groupUUID]: {
-        ...shiftGroupData,
-        activeShift,
-      },
-    };
+  return Object.entries(shiftGroup).reduce((acc, [groupUUID, groupData]) => {
+    acc[groupUUID] = getActiveShiftData(setShiftStates(groupData, options), options);
+    return acc;
   }, {} as TShiftGroupedData);
+};
+
+const getActiveShiftData = (shiftGroupData: TShiftGroupedData['uuid'], options: TPropOptions) => {
+  let activeShiftData: TShift | null = null;
+  let activeShift: TShift['uuid'] | null = null;
+
+  if (shiftGroupData.hasMultipleActiveShifts) {
+    activeShiftData = shiftGroupData.shifts.find(({ isActive, isClosest }) => isActive && isClosest) ?? null;
+  } else {
+    activeShiftData = shiftGroupData.shifts.find(({ isActive }) => isActive) ?? null;
+  }
+
+  activeShift = activeShiftData?.uuid ?? null;
+
+  shiftGroupData = {
+    ...shiftGroupData,
+    shifts: shiftGroupData.shifts.map((shift) => {
+      if (shift?.isActive && options.settings.time?.isEndToNow) {
+        if (options.ui.element.time.input.value) {
+          shift.end = options.settings.time.current;
+        } else {
+          shift.end = getTimeObject();
+        }
+      }
+
+      return shift;
+    }),
+  };
+
+  return {
+    ...shiftGroupData,
+    activeShift,
+  };
 };

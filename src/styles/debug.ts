@@ -38,14 +38,17 @@ export const DebugShiftTable = styled('div', {
   variants: {
     isActive: {
       true: {
-        backgroundColor: 'rgba(255, 0,0, 0.5)',
-        color: 'white',
+        borderTop: '10px solid rgba(255, 0,0, 0.5)',
       },
     },
     isClosest: {
       true: {
-        backgroundColor: 'purple',
-        color: 'white',
+        borderBottom: '10px dashed purple',
+      },
+    },
+    isManualActive: {
+      true: {
+        backgroundColor: 'blue !important',
       },
     },
   },

@@ -1,3 +1,4 @@
+import { PanelProps } from '@grafana/data';
 import { TPropOptions } from '../types';
 import type { TShift } from '../types/shifts';
 import { TUnixTimeOptions } from '../types/time';
@@ -29,6 +30,53 @@ export const getDateByTimeObject = (currentTime: TTimeObject): Date => {
   }
 
   return date;
+};
+
+export const getDateByTimeObjectByContext = (
+  props: PanelProps<TPropOptions>,
+  shift: TShift
+): {
+  startDate: Date;
+  endDate: Date | string;
+} => {
+  const isFixedTime = props.options.ux.time.isFixed;
+  const currentTime = !isFixedTime ? getTimeObject() : props.options.settings.time.current;
+  const productionDate =
+    props.options.ui.element.date.input.value && props.options.ui.element.date.input.isVisible
+      ? new Date(props.options.ui.element.date.input.value)
+      : new Date();
+
+  let startDate: Date;
+  let endDate: Date | string = 'now';
+
+  if (!isFixedTime && shift.start) {
+    startDate = new Date(productionDate.setHours(shift.start.hour, shift.start.minute, 0, 0));
+  } else {
+    startDate = new Date(productionDate.setHours(currentTime.hour, currentTime.minute, 0, 0));
+  }
+
+  if (shift.isNextDay && shift.isActive) {
+    startDate = new Date(productionDate.setDate(productionDate.getDate() - 1));
+  }
+
+  if (endDate === 'now' && !props.options.settings.time.relativeTo) {
+    endDate = new Date();
+  } else if (
+    shift.end &&
+    ((endDate === 'now' && props.options.settings.time.relativeTo) ||
+      (!props.options.ux.realtime.shift.isEndToNow && shift.end))
+  ) {
+    if (shift.isNextDay) {
+      productionDate.setDate(productionDate.getDate() + 1);
+    }
+
+    endDate = new Date(productionDate.setHours(shift.end.hour, shift.end.minute, 0, 0));
+  }
+
+  return {
+    startDate: startDate,
+    endDate: endDate,
+  };
 };
 
 export const getTimeNowObject = (options: TPropOptions): TTimeObject => {
@@ -98,7 +146,7 @@ export const formatToDate = (date = new Date()): string => {
 };
 
 export const timeObjectToUnix = (time: TTimeObject, options?: TUnixTimeOptions): number => {
-  let date = new Date();
+  let date = options?.date ?? new Date();
 
   if (options?.isNextDay) {
     date.setDate(date.getDate() + 1);

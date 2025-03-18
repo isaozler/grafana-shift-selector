@@ -1,6 +1,7 @@
 import { PanelOptionsEditorBuilder } from '@grafana/data';
 import { TPropOptions } from '../types';
 import { TimeSelector } from '../components/panel/timeSelector';
+import { customRefreshIntervalOptions } from '../utils/grafana/time';
 
 const category = ['Behaviour'];
 
@@ -35,6 +36,7 @@ export const options = (builder: PanelOptionsEditorBuilder<TPropOptions>) => {
       defaultValue: false,
     })
     .addBooleanSwitch({
+      showIf: (options) => !options.ui.element.date.input.isVisible,
       category,
       path: 'ux.realtime.shift.isEndToNow',
       name: 'Change the end of time-range to now',
@@ -44,49 +46,11 @@ export const options = (builder: PanelOptionsEditorBuilder<TPropOptions>) => {
     .addSelect({
       category,
       path: 'ux.realtime.shift.refreshInterval',
-      showIf: (options) => options.ux.realtime.shift.isAutoSelect,
       name: 'Custom refresh interval',
-      description: 'Determine a custom dashboard refresh interval.',
+      description: 'Determine a custom dashboard refresh interval to check shifts.',
       defaultValue: 60 * 1000,
       settings: {
-        options: [
-          {
-            label: '5 seconds',
-            value: 5 * 1000,
-          },
-          {
-            label: '10 seconds',
-            value: 10 * 1000,
-          },
-          {
-            label: '30 seconds',
-            value: 30 * 1000,
-          },
-          {
-            label: '1 minute',
-            value: 60 * 1000,
-          },
-          {
-            label: '30 minutes',
-            value: 30 * 60 * 1000,
-          },
-          {
-            label: '1 hour',
-            value: 60 * 60 * 1000,
-          },
-          {
-            label: '6 hours',
-            value: 6 * 60 * 60 * 1000,
-          },
-          {
-            label: '12 hours',
-            value: 12 * 60 * 60 * 1000,
-          },
-          {
-            label: '24 hours',
-            value: 24 * 60 * 60 * 1000,
-          },
-        ],
+        options: customRefreshIntervalOptions,
       },
     })
     .addBooleanSwitch({
