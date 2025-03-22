@@ -16,7 +16,7 @@ export const options = (builder: PanelOptionsEditorBuilder<TPropOptions>) => {
     })
     .addCustomEditor({
       category,
-      showIf: (options) => !options.ux.realtime.shift.isAutoSelect && options.ux.time.isFixed,
+      showIf: (options) => options.ux.time.isFixed,
       id: 'timeSelector',
       path: 'ui.element.time.input.value',
       name: 'Fixed Time',
@@ -28,7 +28,6 @@ export const options = (builder: PanelOptionsEditorBuilder<TPropOptions>) => {
       },
     })
     .addBooleanSwitch({
-      showIf: (options) => !options.ui.element.date.input.isVisible,
       category,
       path: 'ux.realtime.shift.isAutoSelect',
       name: 'Real-time shift auto-select',
@@ -36,7 +35,6 @@ export const options = (builder: PanelOptionsEditorBuilder<TPropOptions>) => {
       defaultValue: false,
     })
     .addBooleanSwitch({
-      showIf: (options) => !options.ui.element.date.input.isVisible,
       category,
       path: 'ux.realtime.shift.isEndToNow',
       name: 'Change the end of time-range to now',

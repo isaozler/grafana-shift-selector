@@ -66,7 +66,7 @@ export const StoreShiftsActions: StateCreator<TShifts, [['zustand/devtools', nev
   getShifts: (props) =>
     set(
       (state) => {
-        let shifts;
+        let shifts, active;
 
         if (props.options.settings.dataSource.type === 'static' && props.options.settings.dataSource.static.data) {
           shifts = parseStaticData(props.options);
@@ -75,12 +75,13 @@ export const StoreShiftsActions: StateCreator<TShifts, [['zustand/devtools', nev
         }
 
         if (shifts) {
-          setDashboardTime(shifts, props);
+          active = setDashboardTime(shifts, props) ?? null;
         }
 
         return {
           ...state,
           shifts,
+          active,
         };
       },
       undefined,

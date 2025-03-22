@@ -3,6 +3,7 @@ import { PanelProps } from '@grafana/data';
 import { TShiftStore } from '../../store/shifts';
 import { TPropOptions } from '../../types';
 import { getDateByTimeObjectByContext } from '../time';
+import { TShift } from '../../types/shifts';
 
 export const checkIfDashboardTimeIsSet = () => {
   const { shift_uuid, active_shift_uuid } = locationService.getSearchObject() || {};
@@ -10,21 +11,23 @@ export const checkIfDashboardTimeIsSet = () => {
   return !!shift_uuid && !!active_shift_uuid;
 };
 
-export const setDashboardTime = (shifts: TShiftStore['shifts'], props: PanelProps<TPropOptions>) => {
+export const setDashboardTime = (shifts: TShiftStore['shifts'], props: PanelProps<TPropOptions>): TShift | null => {
   if (!shifts) {
-    return;
+    return null;
   }
 
+  let active = null
   const path = locationService.getLocation();
   const url = new URLSearchParams(path.search);
   const isSetTime = checkIfDashboardTimeIsSet();
   const isFixedTime = props.options.ux.time.isFixed;
-  const setToEndNow = props.options.ux.realtime.shift.isEndToNow;
+  // const setToEndNow = props.options.ux.realtime.shift.isEndToNow;
 
   if (shifts) {
     Object.entries(shifts).forEach(([groupUUID, shiftGroup]) => {
       if (shiftGroup.activeShift) {
         const shift = shiftGroup.shifts.find((shift) => shift.uuid === shiftGroup.activeShift);
+        active = shift;
 
         if (shift?.start) {
           const { startDate, endDate } = getDateByTimeObjectByContext(props, shift);
@@ -48,6 +51,8 @@ export const setDashboardTime = (shifts: TShiftStore['shifts'], props: PanelProp
   }
   
   locationService.push('?' + url.toString());
+
+  return active;
 };
 
 export const customRefreshIntervalOptions = [

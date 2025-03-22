@@ -1,9 +1,6 @@
-import { PanelProps } from '@grafana/data';
 import { TPropOptions } from '../types';
 import { TShiftGroupedData, TPanelSelectOption, TShift } from '../types/shifts';
 import {
-  formatToDate,
-  getDateByTimeObjectByContext,
   getTimeObject,
   isNextDay,
   timeObjectToUnix,

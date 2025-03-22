@@ -1,17 +1,22 @@
 import { PanelProps } from '@grafana/data';
+import { locationService } from '@grafana/runtime';
 import type { TPropOptions } from '../types';
 import { parseDynamicData, parseStaticData } from '../utils/static.data';
 import { initShiftsData } from '../utils/shift';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { transformGrafanaResponse } from '../utils/data';
 import { useStore } from '../store';
 import { processProps } from '../utils/props';
-import { locationService } from '@grafana/runtime';
 import { customRefreshIntervalOptions } from '../utils/grafana/time';
 
 export const useData = (props: PanelProps<TPropOptions>) => {
   const store = useStore();
   const customRefreshInterval = useRef<NodeJS.Timeout | null>(null);
+
+  const refreshDashboard = useCallback(() => {
+    store.setProps(props.options);
+    store.getShifts(props);
+  }, [props, store]);
 
   useEffect(() => {
     const path = locationService.getLocation();
@@ -50,9 +55,7 @@ export const useData = (props: PanelProps<TPropOptions>) => {
       }
 
       if (props.options.settings.time.refreshInterval && customRefreshIntervalOptions.find((option) => option.value === props.options.settings.time.refreshInterval)) {
-        customRefreshInterval.current = setInterval(() => {
-          console.log('REFRESH INTERVAL', props.options.settings.time.refreshInterval);
-        }, props.options.settings.time.refreshInterval);
+        customRefreshInterval.current = setInterval(refreshDashboard, props.options.settings.time.refreshInterval);
       }
     }
     return () => {

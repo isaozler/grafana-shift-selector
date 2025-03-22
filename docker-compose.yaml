@@ -14,6 +14,12 @@ services:
       - ./provisioning:/etc/grafana/provisioning
       - ./.config/data/grafana:/var/lib/grafana
       - ./.config/docker/grafana.ini:/etc/grafana/grafana.ini
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   mysql:
     image: mysql:latest
@@ -27,3 +33,32 @@ services:
       MYSQL_DATABASE: grafana
       MYSQL_USER: grafana
       MYSQL_PASSWORD: password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  plugin:
+    container_name: 'isaozler-shiftselector-panel-plugin'
+    build:
+      context: .
+      args:
+        NODE_ENV: ${NODE_ENV:-development}
+    # volumes:
+    #   - ./dist:/var/lib/grafana/plugins/isaozler-shiftselector-panel
+    restart: unless-stopped
+    depends_on:
+      grafana:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    command: >
+      sh -c "pnpm dev"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
