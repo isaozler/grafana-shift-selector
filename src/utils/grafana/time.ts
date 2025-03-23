@@ -16,7 +16,7 @@ export const setDashboardTime = (shifts: TShiftStore['shifts'], props: PanelProp
     return null;
   }
 
-  let active = null
+  let active = null;
   const path = locationService.getLocation();
   const url = new URLSearchParams(path.search);
   const isSetTime = checkIfDashboardTimeIsSet();
@@ -49,7 +49,7 @@ export const setDashboardTime = (shifts: TShiftStore['shifts'], props: PanelProp
       }
     });
   }
-  
+
   locationService.push('?' + url.toString());
 
   return active;

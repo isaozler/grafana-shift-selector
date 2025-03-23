@@ -1,13 +1,6 @@
 import { TPropOptions } from '../types';
 import { TShiftGroupedData, TPanelSelectOption, TShift } from '../types/shifts';
-import {
-  getTimeObject,
-  isNextDay,
-  timeObjectToUnix,
-  timeStringToUnix,
-  TTimeObject,
-  TTimeString,
-} from './time';
+import { getTimeObject, isNextDay, timeObjectToUnix, timeStringToUnix, TTimeObject, TTimeString } from './time';
 
 export const hasMultipleShiftGroups = (shiftsData: TShiftGroupedData | null): boolean =>
   Object.keys(shiftsData || {}).length > 1;

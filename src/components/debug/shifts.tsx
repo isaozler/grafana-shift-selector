@@ -37,7 +37,7 @@ export const DebugShiftTable = () => {
         url.set('active_shift_uuid', shift.uuid);
         setClickedShift(uuid, shift);
       }
-      
+
       locationService.push('?' + url.toString());
     },
     [setClickedShift, store.props, store.setToActive?.uuid, unsetClickedShift]

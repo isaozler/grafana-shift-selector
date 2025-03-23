@@ -42,7 +42,7 @@ export const StoreShiftsActions: StateCreator<TShifts, [['zustand/devtools', nev
       undefined,
       'store:shifts/setShift'
     ),
-  setClickedShift: (group_uuid: string, shift: TShift, /* active */) =>
+  setClickedShift: (group_uuid: string, shift: TShift /* active */) =>
     set(
       (state) => ({
         ...state,

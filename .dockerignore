@@ -1,6 +1,5 @@
 # Not needed for any compilations
 **/bin
-# **/dist
 **/node_modules
 **/package-lock.json
 **/target

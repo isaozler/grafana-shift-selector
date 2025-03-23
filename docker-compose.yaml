@@ -10,22 +10,10 @@ services:
     build:
       context: ./.config
       dockerfile: Dockerfile
-      args:
-        grafana_image: ${GRAFANA_IMAGE:-grafana-enterprise}
-        grafana_version: ${GRAFANA_VERSION:-11.5.2}
-        development: ${DEVELOPMENT:-false}
-        anonymous_auth_enabled: ${ANONYMOUS_AUTH_ENABLED:-true}
     ports:
       - 3000:3000/tcp
-    environment:
-      NODE_ENV: development
-      GF_LOG_FILTERS: plugin.isaozler-shiftselector-panel:debug
-      GF_LOG_LEVEL: debug
-      GF_DATAPROXY_LOGGING: 1
-      GF_ENABLE_ALPHA: true
-      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: isaozler-paretochart-panel,grafana-shift-selector
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -35,7 +23,7 @@ services:
     image: mysql:latest
     extends:
       file: docker-compose.volumes.yaml
-      service: mysql  
+      service: mysql
     hostname: host.docker.internal
     ports:
       - '3306:3306'
@@ -45,7 +33,7 @@ services:
       MYSQL_USER: grafana
       MYSQL_PASSWORD: password
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-proot']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -61,8 +49,6 @@ services:
       dockerfile: ./Dockerfile
     working_dir: /app
     restart: unless-stopped
-    environment:
-      development: true
     command: >
       sh -c "pnpm dev"
     depends_on:
@@ -71,13 +57,13 @@ services:
       grafana:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000']
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
 
 volumes:
-  grafana: { }
-  plugin: { }
-  pnpm: { }
+  grafana: {}
+  plugin: {}
+  pnpm: {}

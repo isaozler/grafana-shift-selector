@@ -40,9 +40,9 @@ export const useData = (props: PanelProps<TPropOptions>) => {
 
       if (activeGroupUUID && activeShiftUUID) {
         const setActive = shifts[activeGroupUUID].shifts.find((shift) => shift.uuid === activeShiftUUID);
-        
+
         if (setActive && store.setToActive !== setActive) {
-          store.setClickedShift(activeGroupUUID, setActive, /* active */);
+          store.setClickedShift(activeGroupUUID, setActive /* active */);
         }
       }
 
@@ -54,7 +54,10 @@ export const useData = (props: PanelProps<TPropOptions>) => {
         }
       }
 
-      if (props.options.settings.time.refreshInterval && customRefreshIntervalOptions.find((option) => option.value === props.options.settings.time.refreshInterval)) {
+      if (
+        props.options.settings.time.refreshInterval &&
+        customRefreshIntervalOptions.find((option) => option.value === props.options.settings.time.refreshInterval)
+      ) {
         customRefreshInterval.current = setInterval(refreshDashboard, props.options.settings.time.refreshInterval);
       }
     }
@@ -63,7 +66,7 @@ export const useData = (props: PanelProps<TPropOptions>) => {
         clearInterval(customRefreshInterval.current);
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {
