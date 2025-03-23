@@ -3,7 +3,7 @@ version: '3.0'
 services:
   grafana:
     user: root
-    container_name: 'isaozler-shiftselector-panel'
+    container_name: 'grafana'
     extends:
       file: docker-compose.volumes.yaml
       service: grafana
@@ -40,7 +40,7 @@ services:
       start_period: 30s
 
   plugin:
-    container_name: 'isaozler-shiftselector-panel-plugin'
+    container_name: 'plugin'
     extends:
       file: docker-compose.volumes.yaml
       service: plugin

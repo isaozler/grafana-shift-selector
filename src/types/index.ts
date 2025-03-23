@@ -1,4 +1,4 @@
-import { VariableModel } from '@grafana/data';
+import { TypedVariableModel } from '@grafana/data';
 import type { TTimeString } from '../utils/time';
 import { TShiftGroupedData } from './shifts';
 import { TTimeObject } from './time';
@@ -194,7 +194,7 @@ export interface EIVariableModel {
   };
 }
 
-export type IVariableModel = VariableModel & EIVariableModel;
+export type IVariableModel = TypedVariableModel & EIVariableModel;
 
 export type TSqlConfig = {
   lookup: {

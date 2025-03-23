@@ -3,6 +3,7 @@ services:
     volumes:
       # PNPM
       - pnpm:/app/node_modules
+      - ./.config:/app/.config
       - ./package.json:/app/package.json
       - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
       # Plugin

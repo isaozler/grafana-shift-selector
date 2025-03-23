@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { ComponentType, useEffect } from 'react';
 import { PanelProps } from '@grafana/data';
 
 import { useData } from './hooks/useData';
@@ -57,7 +57,7 @@ const ShiftSelector: React.FC<PanelProps<TPropOptions>> = (props) => {
   );
 };
 
-const App: React.FC<PanelProps<TPropOptions>> = (props) => {
+const App: ComponentType<PanelProps<TPropOptions>> | null = (props) => {
   return (
     <ThemeProvider>
       <ShiftSelector {...props} />

@@ -3,7 +3,7 @@ import { TRangeButtonViewType } from '../types';
 import { RangeButtonComp } from '../styles/components';
 import { config } from '@grafana/runtime';
 
-const isDark = config.theme.isDark;
+const isDark = config.theme2.isDark;
 
 export const RangeButton = ({
   title,
