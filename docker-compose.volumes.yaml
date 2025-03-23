@@ -1,0 +1,21 @@
+services:
+  plugin:
+    volumes:
+      # PNPM
+      - pnpm:/app/node_modules
+      - ./package.json:/app/package.json
+      - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
+      # Plugin
+      - plugin:/app/dist
+      - ./src:/app/src
+
+  mysql:
+    volumes:
+      - ./.config/docker/mysql-data/db:/var/lib/mysql
+
+  grafana:
+    volumes:
+      - plugin:/var/lib/grafana/plugins/isaozler-shiftselector-panel
+      - ./provisioning:/etc/grafana/provisioning
+      - ./.config/data/grafana:/var/lib/grafana
+      - ./.config/docker/grafana.ini:/etc/grafana/grafana.ini

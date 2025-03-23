@@ -2,18 +2,28 @@ version: '3.0'
 
 services:
   grafana:
+    user: root
     container_name: 'isaozler-shiftselector-panel'
+    extends:
+      file: docker-compose.volumes.yaml
+      service: grafana
     build:
       context: ./.config
+      dockerfile: Dockerfile
       args:
-        grafana_version: ${GRAFANA_VERSION:-latest}
+        grafana_image: ${GRAFANA_IMAGE:-grafana-enterprise}
+        grafana_version: ${GRAFANA_VERSION:-11.5.2}
+        development: ${DEVELOPMENT:-false}
+        anonymous_auth_enabled: ${ANONYMOUS_AUTH_ENABLED:-true}
     ports:
       - 3000:3000/tcp
-    volumes:
-      - ./dist:/var/lib/grafana/plugins/isaozler-shiftselector-panel
-      - ./provisioning:/etc/grafana/provisioning
-      - ./.config/data/grafana:/var/lib/grafana
-      - ./.config/docker/grafana.ini:/etc/grafana/grafana.ini
+    environment:
+      NODE_ENV: development
+      GF_LOG_FILTERS: plugin.isaozler-shiftselector-panel:debug
+      GF_LOG_LEVEL: debug
+      GF_DATAPROXY_LOGGING: 1
+      GF_ENABLE_ALPHA: true
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: isaozler-paretochart-panel,grafana-shift-selector
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s
@@ -23,8 +33,9 @@ services:
 
   mysql:
     image: mysql:latest
-    volumes:
-      - ./.config/docker/mysql-data/db:/var/lib/mysql
+    extends:
+      file: docker-compose.volumes.yaml
+      service: mysql  
     hostname: host.docker.internal
     ports:
       - '3306:3306'
@@ -42,23 +53,31 @@ services:
 
   plugin:
     container_name: 'isaozler-shiftselector-panel-plugin'
+    extends:
+      file: docker-compose.volumes.yaml
+      service: plugin
     build:
       context: .
-      args:
-        NODE_ENV: ${NODE_ENV:-development}
-    # volumes:
-    #   - ./dist:/var/lib/grafana/plugins/isaozler-shiftselector-panel
+      dockerfile: ./Dockerfile
+    working_dir: /app
     restart: unless-stopped
-    depends_on:
-      grafana:
-        condition: service_healthy
-      mysql:
-        condition: service_healthy
+    environment:
+      development: true
     command: >
       sh -c "pnpm dev"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      grafana:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
+
+volumes:
+  grafana: { }
+  plugin: { }
+  pnpm: { }
