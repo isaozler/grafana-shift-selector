@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.0.0 Major Updade
+**Codebase**
+- Full refactor of the codebase (react 19)
+- Zustand Store management
+- Unit & e2e test
+
+**UI/UX**
+- All the data-linking settings are moved to the plugin panels
+- Data mapping by database columns through the panels in combination with the native query builder of Grafana, enabling a more straightforward setup
+
+**Fixes**
+- Infinite loop in newer versions of Grafana
+- Date input cropping
+- "Next day" issues with day overlapping shifts
+- and some other minor enhancements/bug fixes
+
 ## 0.1.6
 
 - Release workfile updated for updated Grafana signing flow
