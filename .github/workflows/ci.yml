@@ -26,13 +26,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Check types
-        run: npm run typecheck
+        run: pnpm typecheck
       - name: Lint
-        run: npm run lint
+        run: pnpm lint
       - name: Unit tests
-        run: npm run test:ci
+        run: pnpm test:ci
       - name: Build frontend
-        run: npm run build
+        run: pnpm build
 
       - name: Start Grafana Docker container
         run: |
@@ -43,8 +43,11 @@ jobs:
             -p 3000:3000 \
             grafana/grafana
 
+      - name: Install Dependencies for e2e tests
+        run: pnpm exec playwright install
+
       - name: Run e2e tests
-        run: npm run e2e
+        run: pnpm e2e
 
       - name: Stop and remove Grafana Docker container
         run: |

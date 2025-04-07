@@ -11,9 +11,11 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
+      - name: Install pnpm
+        run: npm install -g pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Build plugin
-        run: npm run build
+        run: pnpm build
       - name: Compatibility check
         run: npx @grafana/levitate@latest is-compatible --path src/module.ts --target @grafana/data,@grafana/ui,@grafana/runtime
