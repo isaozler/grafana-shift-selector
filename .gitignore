@@ -41,3 +41,9 @@ e2e-results/
 .config/grafana.ini
 
 tmp
+
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
