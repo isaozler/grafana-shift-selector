@@ -23,7 +23,7 @@ export const RangeButtonComp = styled('button', {
     isDark: {
       true: {
         borderLeft: `1px solid ${colors.border2}`,
-        backgroundColor: 'red'/* palette.gray1 */,
+        backgroundColor: 'red' /* palette.gray1 */,
       },
       false: {
         borderLeft: `1px solid ${colors.border2}`,

@@ -98,6 +98,7 @@ export type TPropOptions = {
       shift: {
         isAutoSelect: boolean;
         isEndToNow: boolean;
+        isCustomRefreshInterval: boolean;
         refreshInterval: number;
       };
     };

@@ -2,15 +2,17 @@ import type { TPropOptions } from '../types';
 import type { TTimeString } from '../utils/time';
 import type { TTimeObject } from './time';
 
+export type TShiftGroup = {
+  label: string;
+  uuid: string;
+  activeShift: TShift['uuid'] | null;
+  shifts: TShift[];
+  hasNextDayShifts?: boolean;
+  hasMultipleActiveShifts?: boolean;
+};
+
 export type TShiftGroupedData = {
-  [key: string]: {
-    label: string;
-    uuid: string;
-    activeShift: TShift['uuid'] | null;
-    shifts: TShift[];
-    hasNextDayShifts?: boolean;
-    hasMultipleActiveShifts?: boolean;
-  };
+  [key: string]: TShiftGroup;
 };
 
 export type TShift = {

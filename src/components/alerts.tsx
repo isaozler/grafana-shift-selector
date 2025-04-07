@@ -25,7 +25,10 @@ export const Alerts = ({
         }
 
         return (
-          <AlertsDiv key={`alerts-${id}`} type={type as "brandDanger" | "brandWarning" | "brandPrimary" | "brandSuccess"}>
+          <AlertsDiv
+            key={`alerts-${id}`}
+            type={type as 'brandDanger' | 'brandWarning' | 'brandPrimary' | 'brandSuccess'}
+          >
             {text}
             {/* <button
               onClick={() => {

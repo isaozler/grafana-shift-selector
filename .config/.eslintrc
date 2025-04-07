@@ -12,12 +12,8 @@
   },
   "overrides": [
     {
-      "plugins": [
-        "deprecation"
-      ],
-      "files": [
-        "src/**/*.{ts,tsx}"
-      ],
+      "plugins": ["deprecation"],
+      "files": ["src/**/*.{ts,tsx}"],
       "rules": {
         "deprecation/deprecation": "warn"
       },
@@ -26,9 +22,7 @@
       }
     },
     {
-      "files": [
-        "./tests/**/*"
-      ],
+      "files": ["./tests/**/*"],
       "rules": {
         "react-hooks/rules-of-hooks": "off"
       }

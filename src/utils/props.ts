@@ -20,5 +20,13 @@ export const processProps = (options: TPropOptions): TPropOptions => {
 
   options.settings.time = setTimeSettings(options);
 
+  if (options.ux.time.isFixed && !options.ux.realtime.shift.isEndToNow) {
+    options.ux.realtime.shift.isAutoSelect = false;
+    options.ux.realtime.shift.isEndToNow = false;
+    options.ux.realtime.shift.isCustomRefreshInterval = false;
+    options.ux.realtime.shift.refreshInterval = 0;
+    options.ui.element.progressBar.isVisible = false;
+  }
+
   return options;
 };

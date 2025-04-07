@@ -1,4 +1,3 @@
-import { PanelProps } from '@grafana/data';
 import { TPropOptions } from '../types';
 import type { TShift } from '../types/shifts';
 import { TUnixTimeOptions } from '../types/time';
@@ -33,17 +32,17 @@ export const getDateByTimeObject = (currentTime: TTimeObject): Date => {
 };
 
 export const getDateByTimeObjectByContext = (
-  props: PanelProps<TPropOptions>,
+  options: TPropOptions,
   shift: TShift
 ): {
   startDate: Date;
   endDate: Date | string;
 } => {
-  const isFixedTime = props.options.ux.time.isFixed;
-  const currentTime = !isFixedTime ? getTimeObject() : props.options.settings.time.current;
+  const isFixedTime = options.ux.time.isFixed;
+  const currentTime = !isFixedTime ? getTimeObject() : options.settings.time.current;
   const productionDate =
-    props.options.ui.element.date.input.value && props.options.ui.element.date.input.isVisible
-      ? new Date(props.options.ui.element.date.input.value)
+    options.ui.element.date.input.value && options.ui.element.date.input.isVisible
+      ? new Date(options.ui.element.date.input.value)
       : new Date();
 
   let startDate: Date;
@@ -59,12 +58,11 @@ export const getDateByTimeObjectByContext = (
     startDate = new Date(productionDate.setDate(productionDate.getDate() - 1));
   }
 
-  if (endDate === 'now' && !props.options.settings.time.relativeTo) {
+  if (endDate === 'now' && !options.settings.time.relativeTo) {
     endDate = new Date();
   } else if (
     shift.end &&
-    ((endDate === 'now' && props.options.settings.time.relativeTo) ||
-      (!props.options.ux.realtime.shift.isEndToNow && shift.end))
+    ((endDate === 'now' && options.settings.time.relativeTo) || (!options.ux.realtime.shift.isEndToNow && shift.end))
   ) {
     if (shift.isNextDay) {
       productionDate.setDate(productionDate.getDate() + 1);
@@ -157,6 +155,46 @@ export const timeObjectToUnix = (time: TTimeObject, options?: TUnixTimeOptions):
   date.setHours(time.hour, time.minute);
 
   return +date;
+};
+
+export const getNowDate = (date: string | TTimeObject, options: TPropOptions): Date => {
+  const newDate =
+    options.ui.element.date.input.value && options.ui.element.date.input.isVisible
+      ? new Date(options.ui.element.date.input.value)
+      : new Date();
+
+  if (typeof date === 'string') {
+    const currentTime = new Date();
+    newDate.setHours(currentTime.getHours(), currentTime.getMinutes());
+    return newDate;
+  }
+
+  newDate.setHours(date.hour, date.minute);
+
+  return newDate;
+};
+
+export const calculateShiftProgress = (shift: TShift, options: TPropOptions | null): number => {
+  if (!shift.start || !shift.end || !options) {
+    return 0;
+  }
+
+  const now = getNowDate(options.settings.time.current, options).getTime();
+
+  const { startDate, endDate } = getDateByTimeObjectByContext(options, shift);
+  const start = startDate.getTime();
+  const end = typeof endDate === 'string' ? now : endDate.getTime();
+
+  if (now < start) {
+    return 0;
+  }
+  if (now > end) {
+    return 100;
+  }
+
+  const totalDuration = end - start;
+  const currentDuration = now - start;
+  return (currentDuration * 100) / totalDuration;
 };
 
 export const timeStringToUnix = (time: TTimeString | null): number | null => {

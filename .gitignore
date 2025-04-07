@@ -39,3 +39,5 @@ e2e-results/
 .config/docker
 .config/data
 .config/grafana.ini
+
+tmp

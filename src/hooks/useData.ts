@@ -38,7 +38,7 @@ export const useData = (props: PanelProps<TPropOptions>) => {
       const activeShiftUUID = url.get('active_shift_uuid');
       const shiftUUID = url.get('shift_uuid');
 
-      if (activeGroupUUID && activeShiftUUID) {
+      if (activeGroupUUID && activeShiftUUID && shifts[activeGroupUUID]) {
         const setActive = shifts[activeGroupUUID].shifts.find((shift) => shift.uuid === activeShiftUUID);
 
         if (setActive && store.setToActive !== setActive) {
@@ -46,7 +46,7 @@ export const useData = (props: PanelProps<TPropOptions>) => {
         }
       }
 
-      if (activeGroupUUID && shiftUUID) {
+      if (activeGroupUUID && shiftUUID && shifts[activeGroupUUID]) {
         const active = shifts[activeGroupUUID].shifts.find((shift) => shift.uuid === shiftUUID);
 
         if (active) {

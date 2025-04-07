@@ -68,6 +68,7 @@ export const propStaticOptions: TPropOptions = {
         isAutoSelect: false,
         isEndToNow: true,
         refreshInterval: 60000,
+        isCustomRefreshInterval: true,
       },
     },
   },

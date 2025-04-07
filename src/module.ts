@@ -5,14 +5,14 @@ import { options as dataSourceFiltersOptions } from './options/dataSource.filter
 import { options as dataSourceMappingsDbOptions } from './options/dataSource.mappings.db';
 import { options as behaviourOptions } from './options/behaviour';
 import { options as dateSelectorOptions } from './options/dateSelector';
-import { options as rangeButtonOptions } from './options/rangeButton';
+// import { options as rangeButtonOptions } from './options/rangeButton';
 import { options as shiftLabelsOptions } from './options/shiftLabels';
 import { options as filterOptions } from './options/filters';
-import { options as replayOptions } from './options/replay';
+// import { options as replayOptions } from './options/replay';
 
 import type { TGlobalData, TPropOptions } from './types';
 
-import ShiftSelector from './ShiftSelector.v2';
+import ShiftSelector from './ShiftSelector';
 import { globalData } from './data';
 import { processGlobalProps } from './utils/panels/global';
 
@@ -37,9 +37,9 @@ export const plugin = new PanelPlugin(ShiftSelector).setPanelOptions((builder) =
     dataSourceFiltersOptions,
     behaviourOptions,
     dateSelectorOptions,
-    rangeButtonOptions,
+    // rangeButtonOptions,
     shiftLabelsOptions,
     filterOptions,
-    replayOptions
+    // replayOptions
   );
 });

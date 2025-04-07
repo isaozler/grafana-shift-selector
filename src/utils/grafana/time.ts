@@ -4,6 +4,37 @@ import { TShiftStore } from '../../store/shifts';
 import { TPropOptions } from '../../types';
 import { getDateByTimeObjectByContext } from '../time';
 import { TShift } from '../../types/shifts';
+import { TStore } from '../../store';
+
+export const changeShift = (uuid: string, shift: TShift, store: TStore) => {
+  const path = locationService.getLocation();
+  const url = new URLSearchParams(path.search);
+
+  if (store.props?.ux.realtime.shift.isEndToNow) {
+    return
+  }
+
+  if (store.props && shift) {
+    const { startDate, endDate } = getDateByTimeObjectByContext(store.props, shift) ?? {};
+
+    if (startDate && endDate) {
+      url.set('from', startDate.toISOString());
+      url.set('to', typeof endDate === 'string' ? endDate : endDate.toISOString());
+    }
+  }
+
+  if (store.setToActive?.uuid === shift.uuid) {
+    url.delete('group_uuid');
+    url.delete('active_shift_uuid');
+    store.unsetClickedShift();
+  } else {
+    url.set('group_uuid', uuid);
+    url.set('active_shift_uuid', shift.uuid);
+    store.setClickedShift(uuid, shift);
+  }
+
+  locationService.push('?' + url.toString());
+};
 
 export const checkIfDashboardTimeIsSet = () => {
   const { shift_uuid, active_shift_uuid } = locationService.getSearchObject() || {};
@@ -21,21 +52,19 @@ export const setDashboardTime = (shifts: TShiftStore['shifts'], props: PanelProp
   const url = new URLSearchParams(path.search);
   const isSetTime = checkIfDashboardTimeIsSet();
   const isFixedTime = props.options.ux.time.isFixed;
-  // const setToEndNow = props.options.ux.realtime.shift.isEndToNow;
 
   if (shifts) {
-    Object.entries(shifts).forEach(([groupUUID, shiftGroup]) => {
+    Object.entries(shifts).forEach(([, shiftGroup]) => {
       if (shiftGroup.activeShift) {
         const shift = shiftGroup.shifts.find((shift) => shift.uuid === shiftGroup.activeShift);
         active = shift;
 
         if (shift?.start) {
-          const { startDate, endDate } = getDateByTimeObjectByContext(props, shift);
+          const { startDate, endDate } = getDateByTimeObjectByContext(props.options, shift);
 
           if (!isSetTime) {
             url.set('from', startDate.toISOString());
             url.set('to', typeof endDate === 'string' ? endDate : endDate.toISOString());
-            // url.set('active_shift_uuid', shiftGroup.activeShift);
           } else if (props.options.ux.realtime.shift.isAutoSelect) {
             if (url.get('shift_uuid') !== shiftGroup.activeShift || isFixedTime) {
               url.set('from', startDate.toISOString());
@@ -43,7 +72,6 @@ export const setDashboardTime = (shifts: TShiftStore['shifts'], props: PanelProp
             }
           }
 
-          // url.set('group_uuid', groupUUID);
           url.set('shift_uuid', shiftGroup.activeShift ?? '');
         }
       }
