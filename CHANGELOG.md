@@ -1,6 +1,23 @@
 # Changelog
 
+## 2.0.0 Major Updade
+**Codebase**
+- Full refactor of the codebase (react 19)
+- Zustand Store management
+- Unit & e2e test
+
+**UI/UX**
+- All the data-linking settings are moved to the plugin panels
+- Data mapping by database columns through the panels in combination with the native query builder of Grafana, enabling a more straightforward setup
+
+**Fixes**
+- Infinite loop in newer versions of Grafana
+- Date input cropping
+- "Next day" issues with day overlapping shifts
+- and some other minor enhancements/bug fixes
+
 ## 0.1.6
+
 - Release workfile updated for updated Grafana signing flow
 - Fixes for [issue #28](https://github.com/isaozler/grafana-shift-selector/issues/33)
   - With Grafana version 10, the plug-in was failing to retrieve and set the shifts and options correctly due to changes in the fetch API
@@ -11,6 +28,7 @@
 - Grafana version upgrade (11.0.0)
 
 ## 0.1.5
+
 - Fixes for [issue #28](https://github.com/isaozler/grafana-shift-selector/issues/28)
   - Passing the refresh param after shift change.
 

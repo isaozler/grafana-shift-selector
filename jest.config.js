@@ -4,7 +4,6 @@
 // generally used by snapshots, but can affect specific tests
 process.env.TZ = 'UTC';
 
-
 const config = {
   verbose: true,
 };

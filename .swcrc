@@ -1,15 +1,12 @@
 {
-  "$schema": "https://json.schemastore.org/swcrc",
+  "$schema": "https://swc.rs/schema.json",
   "jsc": {
     "parser": {
       "syntax": "typescript"
     },
     "baseUrl": "./src",
     "paths": {
-      "*": [
-        "node_modules",
-        "src/*"
-      ]
+      "*": ["node_modules", "src/*"]
     }
   }
 }

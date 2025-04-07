@@ -25,16 +25,19 @@ export const Alerts = ({
         }
 
         return (
-          <AlertsDiv key={`alerts-${id}`} type={type as any}>
+          <AlertsDiv
+            key={`alerts-${id}`}
+            type={type as 'brandDanger' | 'brandWarning' | 'brandPrimary' | 'brandSuccess'}
+          >
             {text}
-            <button
+            {/* <button
               onClick={() => {
                 resetAlert(id);
                 setClosedAlerts((d: number[]) => [...(new Set([...d, id]) as any)]);
               }}
             >
               x
-            </button>
+            </button> */}
           </AlertsDiv>
         );
       })}

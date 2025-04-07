@@ -42,10 +42,10 @@
   z-index: 999 !important;
 }
 
-.react-datepicker-popper[data-placement^=bottom] .react-datepicker__triangle::before {
+.react-datepicker-popper[data-placement^='bottom'] .react-datepicker__triangle::before {
   top: 0px !important;
 }
 
-.react-datepicker-popper[data-placement^=bottom] .react-datepicker__triangle::after {
+.react-datepicker-popper[data-placement^='bottom'] .react-datepicker__triangle::after {
   top: 1px !important;
 }

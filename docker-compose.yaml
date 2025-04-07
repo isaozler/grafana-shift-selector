@@ -2,13 +2,68 @@ version: '3.0'
 
 services:
   grafana:
-    container_name: 'isaozler-shiftselector-panel'
+    user: root
+    container_name: 'grafana'
+    extends:
+      file: docker-compose.volumes.yaml
+      service: grafana
     build:
       context: ./.config
-      args:
-        grafana_version: ${GRAFANA_VERSION:-11.0.0}
+      dockerfile: Dockerfile
     ports:
       - 3000:3000/tcp
-    volumes:
-      - ./dist:/var/lib/grafana/plugins/isaozler-shiftselector-panel
-      - ./provisioning:/etc/grafana/provisioning
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  mysql:
+    image: mysql:latest
+    extends:
+      file: docker-compose.volumes.yaml
+      service: mysql
+    hostname: host.docker.internal
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: grafana
+      MYSQL_USER: grafana
+      MYSQL_PASSWORD: password
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-proot']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  plugin:
+    container_name: 'plugin'
+    extends:
+      file: docker-compose.volumes.yaml
+      service: plugin
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    working_dir: /app
+    restart: unless-stopped
+    command: >
+      sh -c "pnpm dev"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      grafana:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  grafana: {}
+  plugin: {}
+  pnpm: {}

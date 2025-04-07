@@ -1,13 +1,12 @@
 import { config } from '@grafana/runtime';
 import { styled } from '@stitches/react';
 
-const palette: any = config.theme.palette;
-const colors: any = config.theme.colors;
+const colors: any = config.theme2.colors;
 
 const monoSpaceFont = {
   fontFamily: '"Kode Mono", monospace',
   fontWeight: 400,
-}
+};
 
 export const RangeButtonComp = styled('button', {
   width: '30px',
@@ -24,7 +23,7 @@ export const RangeButtonComp = styled('button', {
     isDark: {
       true: {
         borderLeft: `1px solid ${colors.border2}`,
-        backgroundColor: palette.gray1,
+        backgroundColor: 'red' /* palette.gray1 */,
       },
       false: {
         borderLeft: `1px solid ${colors.border2}`,
@@ -32,7 +31,7 @@ export const RangeButtonComp = styled('button', {
     },
     isActive: {
       true: {
-        backgroundColor: palette.orange,
+        backgroundColor: 'orange' /* palette.orange */,
         color: 'white',
       },
     },
@@ -101,7 +100,7 @@ export const ShiftsWrapper = styled('div', {
     },
     isDark: {
       true: {
-        border: `1px solid ${palette.gray1}`,
+        border: `1px solid ${'red' /* palette.gray1 */}`,
       },
       false: {
         border: `1px solid ${colors.border2}`,
@@ -115,7 +114,7 @@ export const ShiftsWrapper = styled('div', {
     },
     isRealtime: {
       true: {
-        borderColor: palette.orange,
+        borderColor: 'red' /* palette.orange */,
       },
     },
   },
@@ -137,7 +136,7 @@ export const ShiftLabel = styled('span', {
       },
       row: {
         maxWidth: '130px',
-      }
+      },
     },
   },
 });
@@ -184,8 +183,8 @@ export const ShiftButton = styled('button', {
   variants: {
     isDark: {
       true: {
-        backgroundColor: palette.gray1,
-        color: palette.white,
+        backgroundColor: 'red' /* palette.gray1 */,
+        color: 'red' /* palette.white */,
         borderColor: colors.formInputBorder,
         '&:hover': {
           backgroundColor: 'black',
@@ -195,7 +194,7 @@ export const ShiftButton = styled('button', {
       },
       false: {
         backgroundColor: 'whitesmoke',
-        color: palette.gray10,
+        color: 'red' /* palette.gray10 */,
         borderColor: colors.formInputBorder,
         '&:hover': {
           backgroundColor: 'black',
@@ -206,9 +205,9 @@ export const ShiftButton = styled('button', {
     },
     isActive: {
       true: {
-        backgroundColor: palette.orange,
-        color: palette.white,
-        borderColor: palette.orange,
+        backgroundColor: 'red' /* palette.orange */,
+        color: 'red' /* palette.white */,
+        borderColor: 'red' /* palette.orange */,
       },
     },
     isRealtime: {
@@ -222,13 +221,13 @@ export const ShiftButton = styled('button', {
 
 export const Time = styled('span', {
   ...monoSpaceFont,
-})
+});
 
 export const ShiftLabelSpan = styled('span', {
   display: 'block',
   maxWidth: '100%',
   overflow: 'hidden',
-})
+});
 
 export const SelectorInputs = styled('div', {
   flexDirection: 'column',
@@ -274,7 +273,7 @@ export const ProductionDay = styled('div', {
   variants: {
     isDark: {
       true: {
-        border: `1px solid ${palette.gray1}`,
+        border: `1px solid ${'red' /* palette.gray1 */}`,
       },
       false: {
         border: `1px solid ${colors.border2}`,
@@ -318,20 +317,20 @@ export const Alerts = styled('div', {
   variants: {
     type: {
       brandDanger: {
-        backgroundColor: palette.brandDanger,
+        backgroundColor: 'red' /* palette.brandDanger */,
         button: {
           color: 'black',
         },
       },
       brandWarning: {
-        backgroundColor: palette.brandWarning,
+        backgroundColor: 'red' /* palette.brandWarning */,
         color: 'black',
       },
       brandPrimary: {
-        backgroundColor: palette.brandPrimary,
+        backgroundColor: 'red' /* palette.brandPrimary */,
       },
       brandSuccess: {
-        backgroundColor: palette.brandSuccess,
+        backgroundColor: 'red' /* palette.brandSuccess */,
       },
     },
   },

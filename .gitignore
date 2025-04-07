@@ -35,3 +35,15 @@ e2e-results/
 *.zip
 
 .eslintcache
+
+.config/docker
+.config/data
+.config/grafana.ini
+
+tmp
+
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

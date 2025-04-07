@@ -1,10 +1,8 @@
 {
   "json.schemas": [
     {
-      "fileMatch": [
-        "/plugin.json"
-      ],
+      "fileMatch": ["/plugin.json"],
       "url": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json"
     }
-  ],
+  ]
 }

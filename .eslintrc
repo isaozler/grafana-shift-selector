@@ -1,3 +1,15 @@
 {
-  "extends": "./.config/.eslintrc"
+  "extends": "./.config/.eslintrc",
+  "ignorePatterns": [
+    "node_modules/",
+    "dist/",
+    "build/",
+    "coverage/",
+    "public/",
+    "scripts/",
+    "static/",
+    "templates/",
+    "tmp/",
+    "vendor/"
+  ]
 }
