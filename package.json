@@ -1,7 +1,6 @@
 {
   "name": "isaozler-shiftselector-panel",
   "version": "2.0.0",
-  "packageManager": "pnpm@8.6.0",
   "description": "",
   "scripts": {
     "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
@@ -19,7 +18,7 @@
     "vitest:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "build-check": "pnpm run typecheck && pnpm run lint && pnpm run test:ci && pnpm run build",
-    "release-check": "npm ci && npm run typecheck && npm run lint && npm run test:ci && npm run build npm run e2e && npm run sign",
+    "release-check": "pnpm install --frozen-lockfile && npm run typecheck && npm run lint && npm run test:ci && npm run build npm run e2e && npm run sign",
     "test": "jest --watch --onlyChanged",
     "test:ci": "pnpm run vitest:coverage"
   },
